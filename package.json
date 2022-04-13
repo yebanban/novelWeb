@@ -8,11 +8,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.181",
+    "axios": "^0.20.0-0",
+    "element-plus": "^2.1.9",
+    "pinia": "^2.0.13",
     "sass": "^1.49.9",
     "unocss": "^0.29.5",
     "unplugin-auto-import": "^0.6.6",
     "unplugin-vue-components": "^0.18.4",
-    "vue": "^3.2.25"
+    "vue": "^3.2.25",
+    "vue-router": "^4.0.13"
   },
   "devDependencies": {
     "@iconify-json/mdi": "^1.1.3",
