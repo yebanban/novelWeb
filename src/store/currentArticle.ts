@@ -24,7 +24,7 @@ export const useCurrentArticle=defineStore('main',{
         setContent(content:string){
             this.article.content=content
         },
-        async getArticle(chapter:number){
+        async getArticle(chapterId:string){
             this.article.title='第一章'
             this.article.content=`import { defineStore } from 'pinia'
             import { Auth } from './auth' //使用其他的store

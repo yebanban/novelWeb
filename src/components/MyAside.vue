@@ -3,7 +3,7 @@
     <Transition name="menu">
       <div
         v-if="isExpand"
-        w-50
+        w-65
         h-screen
         rounded-r-3xl
         bg-white
@@ -12,23 +12,23 @@
         flex="~ col gap-8"
         items-center
       >
-        <div m-y-25 h="[70vh]" w-40 font="sans semibold" text="xs gray-600" flex="~ col gap-3" select-none>
-          <div menu-item>
-            <div i-ph:house text="base"></div>
-            主页
-          </div>
-          <div menu-item>
-            <div i-mdi:format-align-right text="base"></div>
-            目录
-          </div>
-          <div menu-item>
-            <div i-ph:nut-bold text="base"></div>
-            设置
-          </div>
-          <div menu-item>
-            <div i-mdi:information-outline text="base"></div>
-            关于
-          </div>
+        <div
+          m-y-25
+          h="[70vh]"
+          w-53
+          font="sans semibold"
+          text="sm gray-600"
+          flex="~ col gap-3"
+          select-none
+        >
+          <Menu
+            v-for="(menu, index) in MenuList"
+            :key="index"
+            :name="menu.name"
+            :logo="menu.logo"
+            :menu-items="menu.menuItems"
+            :duration="menu.duration"
+          />
         </div>
         <div i-mdi:close btn-logo absolute top-3 right-3 text="gray-600" @click="close"></div>
       </div>
@@ -58,6 +58,62 @@ const emit = defineEmits<{
   (e: 'expand'): void
   (e: 'close'): void
 }>()
+interface Menu {
+  name: string
+  logo: string
+  menuItems?: MenuItem[]
+  duration?: number
+}
+const MenuList  = ref<Menu[]>([
+  { name: '主页', logo: 'i-ph:house' },
+  {
+    name: '目录',
+    logo: 'i-mdi:format-align-right',
+    menuItems: [
+      {
+        id:0,
+        itemName: '第一章 绝世美女',
+        clickMe: () => {
+          console.log(1)
+        },
+        selected:false
+      },
+      {
+        id:1,
+        itemName: '第二章 天下第一美女',
+        clickMe: () => {
+          console.log(1)
+        },
+        selected:false
+      },{
+        id:2,
+        itemName: '第三章 巨乳细腰肥臀大长腿美女',
+        clickMe: () => {
+          console.log(1)
+        },
+        selected:false
+      },
+      {
+        id:3,
+        itemName: '第一章 绝世美女',
+        clickMe: () => {
+          console.log(1)
+        },
+        selected:false
+      },
+      {
+        id:4,
+        itemName: '第一章 绝世美女',
+        clickMe: () => {
+          console.log(1)
+        },
+        selected:false
+      },
+    ],
+  },
+  { name: '设置', logo: 'i-ph:nut-bold' },
+  { name: '关于', logo: 'i-mdi:information-outline' },
+])
 const isExpand = ref(false)
 const expand = () => {
   isExpand.value = true

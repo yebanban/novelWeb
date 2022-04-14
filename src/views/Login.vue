@@ -24,7 +24,6 @@ const login = () => {
   if (input.value === '123321') {
     sessionStorage.setItem('token', 'res.token')
     router.push('/home')
-    console.log(123)
   }
 }
 document.onkeydown = function (e) {
