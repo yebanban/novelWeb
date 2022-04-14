@@ -46,7 +46,7 @@
 <script setup lang="ts">
 import type { Article } from '../../types/article'
 import { useCurrentArticle } from '../store/currentArticle';
-import {debounce} from '../composables/help'
+import {debounce} from '../common/utils'
 const props = defineProps<{ article: Article }>()
 const content=ref(props.article.content)
 const {setTitle,setContent}=useCurrentArticle()

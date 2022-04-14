@@ -9,7 +9,7 @@
       <div :class="logo" text="base"></div>
       {{ name }}
     </div>
-    <Transition appear name="itemList" @before-enter="onBeforeEnter" @after-enter="onAfterEnter">
+    <Transition appear name="itemList">
       <div
         :style="{ 'transition-duration': duration + 's' }"
         max-h="[35vh]"
@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { throttle } from '../composables/help'
+import { throttle } from '../common/utils'
 const props = withDefaults(
   defineProps<{
     name: string
@@ -59,12 +59,7 @@ const expand = throttle(() => {
         isShowItems.value = !isShowItems.value
     }
 }, props.duration * 1000)
-const onBeforeEnter = (el: HTMLElement) => {
-  console.log(window.getComputedStyle(el).height)
-}
-const onAfterEnter = (el: HTMLElement) => {
-  console.log(window.getComputedStyle(el).height)
-}
+
 const getbgColor=(menuItem:MenuItem)=>{
     if(!menuItem.selected) return 'hover:bg-blue-100/20'
     return 'bg-blue-100/50 hover:bg-blue-100/50'
