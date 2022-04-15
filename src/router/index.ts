@@ -16,7 +16,10 @@ const router = createRouter({
        {
            path:'/edit/:id/:name',
            name:'edit',
-           component:()=>import('../views/Edit.vue')
+           component:()=>import('../views/Edit.vue'),
+           meta:{
+            title: name,
+          }
        },
        {
            path:'/home',

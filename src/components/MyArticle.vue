@@ -14,12 +14,21 @@
         ref="titleInput"
       />
       <div v-show="!titleEditable" font-sans border="0 b-2 transparent" whitespace-pre-wrap>
-        {{ title }}
+        {{ store.title ? store.title : ' ' }}
       </div>
     </div>
-    <div mt-10 min-h="4/5" bg="white" whitespace-pre-wrap rounded-3xl p="x-10 y-6" relative font="serif">
+    <div
+      mt-10
+      min-h="4/5"
+      bg="white"
+      whitespace-pre-wrap
+      rounded-3xl
+      p="x-10 y-6"
+      relative
+      font="serif"
+    >
       <div
-        i-mdi:pen
+        :class="contentEditable?'i-mdi:content-save':'i-mdi:pen'"
         absolute
         top-3
         right-5
@@ -27,7 +36,7 @@
         text="gray-600"
         @click="changeContentEditable"
       ></div>
-      <p p="y-2 x-6" text="right sm gray-400">{{ saved ? `文章自动保存于 ${time}` : ' ' }}</p>
+      <p p="y-2 x-6" text="right sm gray-400">{{ saveInfo }}</p>
       <div
         min-h="[70vh]"
         w-full
@@ -35,66 +44,67 @@
         outline-none
         :contenteditable="contentEditable"
         text="base"
-        @input="saveContentDebounce($event)"
+        ref="contentEditor"
+        @input="saveContentDebounce($event.target,true)"
       >
-        {{ content }}
+        {{ store.content }}
       </div>
     </div>
   </article>
 </template>
 
 <script setup lang="ts">
-import type { Article } from '../../types/article'
-import { useCurrentArticle } from '../store/currentArticle';
-import {debounce} from '../common/utils'
-const props = defineProps<{ article: Article }>()
-const content=ref(props.article.content)
-const {setTitle,setContent}=useCurrentArticle()
-const title = toRef(props.article, 'title')
-const titleEdited = ref(title.value)
-const time = ref('')
-watch(title, () => {
-  if (title.value === '') {
-    title.value = ' '
-    setTitle(' ')
-  }
-})
+import { useCurrentArticle } from '../store/currentArticle'
+import { debounce } from '../common/utils'
+import chapterApi from '../apis/chapterApi'
+const emit = defineEmits<{
+  (e: 'updateTitle', id: string, title: string): void
+}>()
+const store = useCurrentArticle()
+const titleEdited = ref(store.title)
+const saveInfo = ref(' ')
 const titleEditable = ref(false)
 const contentEditable = ref(false)
-const saved = ref(false)
 const titleInput = ref<HTMLInputElement | null>(null)
+const contentEditor = ref<HTMLDivElement | null>(null)
 const setTitleEditable = () => {
+  titleEdited.value = store.title
   titleEditable.value = true
 }
 const setUnTitleEditable = () => {
   titleEditable.value = false
-  
 }
-const changeContentEditable = () => {
+const changeContentEditable = async () => {
   contentEditable.value = !contentEditable.value
+  if(!contentEditable.value){
+    await saveContent(contentEditor.value as HTMLDivElement,false)
+    preventAutoSave()
+  }
 }
 
-function saveContent(event: InputEvent) {
-  let content=(event.target as unknown as HTMLDivElement).innerText
-  if (!saved.value) {
-    saved.value = true
-  }
-  setContent(content)
+async function saveContent(contentEditor: HTMLDivElement,isAutoSave:boolean) {
+  let content = contentEditor.innerText
+  await chapterApi.updateChapterContent({ id: store.id, content })
+  store.setContent(content)
   let now = new Date()
-  time.value = now.toLocaleTimeString()
+  saveInfo.value = `文章${isAutoSave?'自动':''}保存于${now.toLocaleTimeString()}`
 }
-function saveTitle(title: string) {
-  setTitle(title)
+async function saveTitle(title: string) {
+  title = title ? title : ' '
+  store.setTitle(title)
+  emit('updateTitle', store.id, title)
+  await chapterApi.updateChapterName({ id: store.id, title })
 }
-const saveContentDebounce = debounce(saveContent, 5000)
+const {fnDebounced: saveContentDebounce,clearTime:preventAutoSave} = debounce(saveContent, 5000)
 const clickExceptInput = (e: Event) => {
   if (titleEditable.value && e.target != titleInput.value) {
     setUnTitleEditable()
-    titleEdited.value=titleEdited.value.replace(/(.+?)\s*$/, `$1`)
+    titleEdited.value = titleEdited.value.replace(/(.+?)\s*$/, `$1`)
     saveTitle(titleEdited.value)
+    e.stopPropagation()
   }
 }
-window.addEventListener('click', clickExceptInput)
+window.addEventListener('click', clickExceptInput, true)
 onUnmounted(() => {
   window.removeEventListener('click', clickExceptInput)
 })

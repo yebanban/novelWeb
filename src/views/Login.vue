@@ -34,6 +34,9 @@ document.onkeydown = function (e) {
     login()
   }
 }
+
+document.title="登录"
+
 onBeforeUnmount(()=>{
     document.onkeydown=null
 })

@@ -22,17 +22,45 @@
       >
         <div
           p="l-4 r-2 y-2"
+          text="xs center"
+          cursor="pointer"
+          border-gray-100
+          border="0 b-1"
+          @click="openNewChapterDialog"
+          bg="red-100/40 hover:red-100/70 active:red-100"
+        >
+          新建章节
+        </div>
+        <div
+          p="l-4 r-2 y-2"
           text="xs"
           cursor="pointer"
           border-gray-100
           border="0 b-1"
+          whitespace-pre-wrap
           truncate
+          relative
           v-for="item in menuItems"
           :key="item.id"
-          @click="item.clickMe;select(item)"
+          @click="
+            item.clickMe();select(item)
+          "
           :class="getbgColor(item)"
+          class="item"
         >
           {{ item.itemName }}
+          <div
+            v-if="item.canDelete"
+            class="delete"
+            hidden
+            btn-logo
+            i-mdi:trash-can-outline
+            absolute
+            right="1"
+            top="1/2"
+            translate-y="-1/2"
+            @click="deleteChapter(item)"
+          ></div>
         </div>
       </div>
     </Transition>
@@ -40,6 +68,7 @@
 </template>
 
 <script setup lang="ts">
+import chapterApi from '../apis/chapterApi';
 import { throttle } from '../common/utils'
 const props = withDefaults(
   defineProps<{
@@ -52,21 +81,26 @@ const props = withDefaults(
     duration: 0.5,
   }
 )
-
+const openNewChapterDialog = inject<() => void>('openNewChapterDialog')
+const deleteMenuItem=inject<(id:string)=>Promise<void>>('deleteMenuItem')
 const isShowItems = ref(false)
 const expand = throttle(() => {
-    if(props.menuItems){
-        isShowItems.value = !isShowItems.value
-    }
+  if (props.menuItems) {
+    isShowItems.value = !isShowItems.value
+  }
 }, props.duration * 1000)
 
-const getbgColor=(menuItem:MenuItem)=>{
-    if(!menuItem.selected) return 'hover:bg-blue-100/20'
-    return 'bg-blue-100/50 hover:bg-blue-100/50'
+const getbgColor = (menuItem: MenuItem) => {
+  if (!menuItem.selected) return 'hover:bg-blue-100/20'
+  return 'bg-blue-100/50 hover:bg-blue-100/50'
 }
-const select=(menuItem:MenuItem)=>{
-    props.menuItems?.forEach(item=>item.selected=false)
-    menuItem.selected=true
+const select = (menuItem: MenuItem) => {
+  props.menuItems?.forEach(item => (item.selected = false))
+  menuItem.selected = true
+}
+const deleteChapter=async (item:MenuItem)=>{
+  await chapterApi.deleteChapter({id:item.id})
+  await (deleteMenuItem as (id:string)=>Promise<void>)(item.id)
 }
 </script>
 
@@ -74,5 +108,12 @@ const select=(menuItem:MenuItem)=>{
 .itemList-enter-from,
 .itemList-leave-to {
   max-height: 0;
+}
+.item {
+  &:hover {
+    .delete {
+      display: block;
+    }
+  }
 }
 </style>

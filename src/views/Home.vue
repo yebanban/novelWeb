@@ -19,7 +19,6 @@
       p="y-10 x-[4vw]"
       flex="~ wrap gap-15"
     >
-    
       <div v-for="book in books">
         <div
           border="1 gray-300"
@@ -33,8 +32,11 @@
           @click="openBook(book)"
         >
           <div shadow="sm blue-100" rounded overflow-hidden>
-            <div v-if="book.Cover"></div>
+            <!-- <div v-if="book.Cover"></div>
             <div v-else bg="gray-400/20" w='[10vw]' h-40 text-lg box-border p="x-3 y-1">
+              {{ book.name }}
+            </div> -->
+            <div bg="gray-400/20" w="[10vw]" h-40 text-lg box-border p="x-3 y-1">
               {{ book.name }}
             </div>
           </div>
@@ -47,26 +49,19 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import type { Book } from '../../types/book'
-import { http } from '../plugins/axios';
+import bookApi, { BookInfo } from '../apis/bookApi'
 const router = useRouter()
-const b=await http.request({url:'getbooks'})
-console.log(b)
-const books = ref<Book[]>([
-  { id: 0, name: '逆天邪神' },
-  { id: 1, name: '斗罗大陆' },
-  { id: 2, name: '无敌公子' },
-  { id: 0, name: '逆天邪神' },
-  { id: 1, name: '斗罗大陆' },
-  { id: 2, name: '无敌公子' },
-  { id: 0, name: '逆天邪神' },
-  { id: 1, name: '斗罗大陆' },
-  { id: 2, name: '无敌公子' },
-])
-const openBook = (book: Book) => {
-  router.push({ name: 'edit', params: { name: book.name, id: book.id } })
+const books=ref<BookInfo[]>()
+document.title="夜半小说网"
+try {
+  books.value = (await bookApi.getAllBook()).result.books
+} catch (error) {
+  alert(error)
 }
 
+const openBook = (book: BookInfo) => {
+  router.push({ name: 'edit', params: { name: book.name, id: book.id } })
+}
 </script>
 
 <style lang="scss" scoped></style>

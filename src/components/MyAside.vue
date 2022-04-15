@@ -22,7 +22,7 @@
           select-none
         >
           <Menu
-            v-for="(menu, index) in MenuList"
+            v-for="(menu, index) in menuList"
             :key="index"
             :name="menu.name"
             :logo="menu.logo"
@@ -45,9 +45,8 @@
         justify="center"
         items-center
         fixed
-        @click="expand"
       >
-        <div btn i-mdi:menu px-2></div>
+        <div btn i-mdi:menu px-2 @click="expand"></div>
       </div>
     </Transition>
   </aside>
@@ -58,62 +57,10 @@ const emit = defineEmits<{
   (e: 'expand'): void
   (e: 'close'): void
 }>()
-interface Menu {
-  name: string
-  logo: string
-  menuItems?: MenuItem[]
-  duration?: number
-}
-const MenuList  = ref<Menu[]>([
-  { name: '主页', logo: 'i-ph:house' },
-  {
-    name: '目录',
-    logo: 'i-mdi:format-align-right',
-    menuItems: [
-      {
-        id:0,
-        itemName: '第一章 绝世美女',
-        clickMe: () => {
-          console.log(1)
-        },
-        selected:false
-      },
-      {
-        id:1,
-        itemName: '第二章 天下第一美女',
-        clickMe: () => {
-          console.log(1)
-        },
-        selected:false
-      },{
-        id:2,
-        itemName: '第三章 巨乳细腰肥臀大长腿美女',
-        clickMe: () => {
-          console.log(1)
-        },
-        selected:false
-      },
-      {
-        id:3,
-        itemName: '第一章 绝世美女',
-        clickMe: () => {
-          console.log(1)
-        },
-        selected:false
-      },
-      {
-        id:4,
-        itemName: '第一章 绝世美女',
-        clickMe: () => {
-          console.log(1)
-        },
-        selected:false
-      },
-    ],
-  },
-  { name: '设置', logo: 'i-ph:nut-bold' },
-  { name: '关于', logo: 'i-mdi:information-outline' },
-])
+defineProps<{
+  novelId: string,
+  menuList:Menu[]|undefined
+}>()
 const isExpand = ref(false)
 const expand = () => {
   isExpand.value = true

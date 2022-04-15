@@ -4,7 +4,6 @@ export default class Axios {
   private instance
   constructor(config: AxiosRequestConfig) {
     this.instance = axios.create(config)
-
     this.interceptors()
   }
   public async request<T, D = ResponseResult<T>>(config: AxiosRequestConfig) {
@@ -38,6 +37,7 @@ export default class Axios {
   private interceptorsResponse() {
     this.instance.interceptors.response.use(
       response => {
+        console.log(response.status)
         return response
       },
       error => {
