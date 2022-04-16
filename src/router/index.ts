@@ -4,22 +4,19 @@ const router = createRouter({
     history: createWebHashHistory(),
     routes: [
         {
-            path: "",
+            path: "/",
             name: "login",
             component: Login
         },
         {
             path: "/login",
-            name: "login",
+            name: "login2",
             component: Login
         },
        {
            path:'/edit/:id/:name',
            name:'edit',
-           component:()=>import('../views/Edit.vue'),
-           meta:{
-            title: name,
-          }
+           component:()=>import('../views/Edit.vue')
        },
        {
            path:'/home',

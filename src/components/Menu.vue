@@ -42,9 +42,7 @@
           relative
           v-for="item in menuItems"
           :key="item.id"
-          @click="
-            item.clickMe();select(item)
-          "
+          @click="item.clickMe();select(item)"
           :class="getbgColor(item)"
           class="item"
         >
@@ -59,16 +57,25 @@
             right="1"
             top="1/2"
             translate-y="-1/2"
-            @click="deleteChapter(item)"
+            @click="showDeleteDialog(item.id)"
           ></div>
         </div>
       </div>
     </Transition>
+    <el-dialog v-model="dialogVisible" title="提示" width="50%" draggable>
+      <span>是否删除该章节？</span>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="deleteChapter(wantToDelete)">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import chapterApi from '../apis/chapterApi';
+import chapterApi from '../apis/chapterApi'
 import { throttle } from '../common/utils'
 const props = withDefaults(
   defineProps<{
@@ -81,8 +88,14 @@ const props = withDefaults(
     duration: 0.5,
   }
 )
+const dialogVisible = ref(false)
+const wantToDelete = ref('')
 const openNewChapterDialog = inject<() => void>('openNewChapterDialog')
-const deleteMenuItem=inject<(id:string)=>Promise<void>>('deleteMenuItem')
+const deleteMenuItem = inject<(id: string) => Promise<void>>('deleteMenuItem')
+const showDeleteDialog = (id: string) => {
+  dialogVisible.value = true
+  wantToDelete.value = id
+}
 const isShowItems = ref(false)
 const expand = throttle(() => {
   if (props.menuItems) {
@@ -98,9 +111,10 @@ const select = (menuItem: MenuItem) => {
   props.menuItems?.forEach(item => (item.selected = false))
   menuItem.selected = true
 }
-const deleteChapter=async (item:MenuItem)=>{
-  await chapterApi.deleteChapter({id:item.id})
-  await (deleteMenuItem as (id:string)=>Promise<void>)(item.id)
+const deleteChapter = async (id: string) => {
+  dialogVisible.value = false
+  await chapterApi.deleteChapter({ id })
+  await (deleteMenuItem as (id: string) => Promise<void>)(id)
 }
 </script>
 

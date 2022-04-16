@@ -37,7 +37,8 @@ export default class Axios {
   private interceptorsResponse() {
     this.instance.interceptors.response.use(
       response => {
-        console.log(response.status)
+        if(response.data.code!==200) throw(new Error(response.data.message))
+        //if(res.code!==200) return Promise.reject(res.message)
         return response
       },
       error => {

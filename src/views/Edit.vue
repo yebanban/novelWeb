@@ -2,7 +2,8 @@
   <div bg="light-600" min-h="full" flex>
     <my-aside @expand="addWidth" @close="reduceWidth" :novelId="novelId" :menuList="MenuList" />
     <div :style="{ width: w }" min-h="full" duration-500 ease-in-out></div>
-    <my-article my-8 mx-16 flex="1" min-h="[90vh]" @updateTitle="updateMenuItemTitle" />
+    <my-article v-if="MenuList[1]?.menuItems?.length" my-8 mx-16 flex="1" min-h="[90vh]" @updateTitle="updateMenuItemTitle" />
+    <blank-article v-else my="[10vh]" mx-16 flex="1" />
     <el-dialog v-model="dialogVisible" title="新建章节" width="50%" draggable>
       <el-input v-model="newChapterTitle" placeholder="请输入新章节名" />
       <template #footer>
@@ -39,9 +40,12 @@ document.title = novelName.value as string
 
 try {
   chapters.value = (await bookApi.getChapters({ id: novelId.value })).result.chapters
-  chapters.value.sort((a, b) => a.title.localeCompare(b.title))
-  let content = (await chapterApi.getChapterContent({ id: chapters.value[0].id })).result.content
-  store.updateChapter(chapters.value[0].id, chapters.value[0].title, content)
+  //chapters.value.sort((a, b) => a.title.localeCompare(b.title))
+  if(chapters.value.length>0){
+    let content = (await chapterApi.getChapterContent({ id: chapters.value[0].id })).result.content
+    store.updateChapter(chapters.value[0].id, chapters.value[0].title, content)
+  }
+  
   MenuList.value = [
     { name: '主页', logo: 'i-ph:house' },
     {
@@ -70,7 +74,7 @@ const updateMenuItemTitle = (id: string, title: string) => {
     if (menuItems) {
       let index = menuItems.findIndex(item => item.id === id)
       menuItems[index].itemName = title
-      menuItems.sort((a, b) => a.itemName.localeCompare(b.itemName))
+      //menuItems.sort((a, b) => a.itemName.localeCompare(b.itemName))
     }
   }
 }
@@ -78,9 +82,9 @@ const addMenuItem = (id: string, title: string) => {
   if (MenuList.value) {
     const menuItems = MenuList.value[1].menuItems
     if (menuItems) {
-      let index = menuItems.findIndex(item => item.itemName.localeCompare(title) > 0)
+      //let index = menuItems.findIndex(item => item.itemName.localeCompare(title) > 0)
       menuItems.forEach(item=>item.selected=false)
-      menuItems.splice(index, 0, {
+      menuItems.push({
         id,
         itemName: title,
         selected: true,
@@ -104,6 +108,7 @@ const deleteMenuItem=async (id:string)=>{
       menuItems.splice(index,1)
       if(menuItems.length===0){
         store.updateChapter('', '', '')
+        return
       }else if(index===menuItems.length){
         index--
       }

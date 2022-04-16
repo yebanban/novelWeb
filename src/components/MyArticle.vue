@@ -1,6 +1,6 @@
 <template>
   <article>
-    <div w-auto @dblclick="setTitleEditable" text="lg center" font-bold>
+    <div w-full @dblclick="setTitleEditable" text="lg center" font-bold>
       <input
         v-show="titleEditable"
         w="full"
