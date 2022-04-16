@@ -10,6 +10,7 @@ declare module 'vue' {
     ElDialog: typeof import('element-plus/es')['ElDialog']
     ElInput: typeof import('element-plus/es')['ElInput']
     Home: typeof import('./../src/views/Home.vue')['default']
+    Loading: typeof import('./../src/components/Loading.vue')['default']
     Login: typeof import('./../src/views/Login.vue')['default']
     Menu: typeof import('./../src/components/Menu.vue')['default']
     MyArticle: typeof import('./../src/components/MyArticle.vue')['default']

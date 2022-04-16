@@ -1,5 +1,5 @@
 <template>
-  <div bg="light-600" min-h="full" flex>
+  <div bg="light-600" min-h="full" flex :class="loading?'blur-sm':''">
     <my-aside @expand="addWidth" @close="reduceWidth" :novelId="novelId" :menuList="MenuList" />
     <div :style="{ width: w }" min-h="full" duration-500 ease-in-out></div>
     <my-article v-if="MenuList[1]?.menuItems?.length" my-8 mx-16 flex="1" min-h="[90vh]" @updateTitle="updateMenuItemTitle" />
@@ -37,15 +37,18 @@ const chapters = ref<ChapterIdName[]>()
 const MenuList = ref<Menu[]>()
 const dialogVisible = ref(false)
 document.title = novelName.value as string
-
+const setLoading = inject<(on: boolean) => void>('setLoading') as (on: boolean) => void
+const loading=inject<boolean>('loading')
 try {
+  setLoading(true)
   chapters.value = (await bookApi.getChapters({ id: novelId.value })).result.chapters
+  
   //chapters.value.sort((a, b) => a.title.localeCompare(b.title))
   if(chapters.value.length>0){
     let content = (await chapterApi.getChapterContent({ id: chapters.value[0].id })).result.content
     store.updateChapter(chapters.value[0].id, chapters.value[0].title, content)
   }
-  
+  setLoading(false)
   MenuList.value = [
     { name: '主页', logo: 'i-ph:house' },
     {
@@ -57,8 +60,10 @@ try {
         selected: index>0?false:true,
         canDelete:true,
         clickMe: async function () {
+          setLoading(true)
           let content = (await chapterApi.getChapterContent({ id: chapter.id })).result.content
           store.updateChapter(this.id, this.itemName, content)
+          setLoading(false)
         },
       })),
     },
@@ -90,8 +95,10 @@ const addMenuItem = (id: string, title: string) => {
         selected: true,
         canDelete:true,
         clickMe: async function () {
+          setLoading(true)
           let content = (await chapterApi.getChapterContent({ id })).result.content
           store.updateChapter(this.id, this.itemName, content)
+          setLoading(false)
         },
       })
     }
@@ -113,7 +120,9 @@ const deleteMenuItem=async (id:string)=>{
         index--
       }
       const item=menuItems[index]
+      setLoading(true)
       let content = (await chapterApi.getChapterContent({ id: item.id })).result.content
+      setLoading(false)
       menuItems.forEach(item=>item.selected=false)
       item.selected=true
       store.updateChapter(item.id,item.itemName, content)
@@ -124,9 +133,11 @@ provide('openNewChapterDialog',openNewChapterDialog)
 provide('deleteMenuItem',deleteMenuItem)
 const newChapter = async (name: string) => {
   try {
+    setLoading(true)
     const chapterId = (
       await chapterApi.create({ bookId: novelId.value, chapterName: newChapterTitle.value })
     ).result.id
+    setLoading(false)
     addMenuItem(chapterId, name)
     store.updateChapter(chapterId, name, '')
     newChapterTitle.value=''

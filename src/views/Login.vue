@@ -1,5 +1,5 @@
 <template>
-  <div bg="dark-900" h="full" text-center>
+  <div bg="dark-900" h="full" text-center :class="loading?'blur-sm':''">
     <div pt-50>
       <h3 text="gray-200">夜半小说后台管理系统</h3>
       <div pt-10 flex justify="center" items-center>
@@ -20,6 +20,7 @@ import { useRouter } from 'vue-router'
 
 const input = ref('')
 const router = useRouter()
+const loading=inject<boolean>('loading')
 const login = () => {
   if (input.value === '123321') {
     sessionStorage.setItem('token', 'res.token')

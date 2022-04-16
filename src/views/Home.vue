@@ -1,5 +1,5 @@
 <template>
-  <div py-10 m-auto w="[65vw]">
+  <div py-10 m-auto w="[65vw]" :class="loading?'blur-sm':''">
     <div flex justify="between" px-3>
       <h2>书架</h2>
       <div flex="~ gap-5">
@@ -51,10 +51,14 @@
 import { useRouter } from 'vue-router'
 import bookApi, { BookInfo } from '../apis/bookApi'
 const router = useRouter()
-const books=ref<BookInfo[]>()
-document.title="夜半小说网"
+const books = ref<BookInfo[]>()
+const setLoading = inject<(on: boolean) => void>('setLoading') as (on: boolean) => void
+const loading=inject<boolean>('loading')
+document.title = '夜半小说网'
 try {
+  setLoading(true)
   books.value = (await bookApi.getAllBook()).result.books
+  setLoading(false)
 } catch (error) {
   alert(error)
 }
