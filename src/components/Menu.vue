@@ -42,7 +42,10 @@
           relative
           v-for="item in menuItems"
           :key="item.id"
-          @click="item.clickMe();select(item)"
+          @click="
+            item.clickMe()
+            select(item)
+          "
           :class="getbgColor(item)"
           class="item"
         >
@@ -88,8 +91,8 @@ const props = withDefaults(
     duration: 0.5,
   }
 )
-const emit=defineEmits<{
-  (e:'clickMe'):void
+const emit = defineEmits<{
+  (e: 'clickMe'): void
 }>()
 const dialogVisible = ref(false)
 const wantToDelete = ref('')
@@ -118,14 +121,12 @@ const deleteChapter = async (id: string) => {
   dialogVisible.value = false
   try {
     await chapterApi.deleteChapter({ id })
-  if(deleteCatalogItem){
-    await deleteCatalogItem(id)
-  }
+    if (deleteCatalogItem) {
+      await deleteCatalogItem(id)
+    }
   } catch (error) {
     alert(error)
   }
-  
-  
 }
 </script>
 
