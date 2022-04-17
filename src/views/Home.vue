@@ -56,6 +56,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import bookApi, { BookInfo } from '../apis/bookApi'
+import { removeFLSpaces } from '../common/utils';
 const router = useRouter()
 const books = ref<BookInfo[]>()
 const setLoading = inject<(on: boolean) => void>('setLoading') as (on: boolean) => void
@@ -68,6 +69,7 @@ try {
   books.value = (await bookApi.getAllBook()).result.books
   setLoading(false)
 } catch (error) {
+  setLoading(false)
   alert(error)
 }
 const openInputDialog = () => {
@@ -79,10 +81,12 @@ const addBook = (book:BookInfo) => {
 const newBook = async (name: string) => {
   try {
     setLoading(true)
+    name=removeFLSpaces(name)
     const bookId = (await bookApi.create({ name })).result.id
     addBook({id:bookId, name})
     setLoading(false)
   } catch (error) {
+    setLoading(false)
     alert(error)
   }
 }

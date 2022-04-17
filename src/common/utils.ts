@@ -24,3 +24,6 @@ export const throttle = (fn: Function, delay: number) => {
     }, delay)
   }
 }
+export const removeFLSpaces=(s:string):string=>{
+  return s.replace(/^\s*(.+?)\s*$/,`$1`)
+}

@@ -6,7 +6,7 @@
           <el-button @click="emit('update:modelValue',false);newChapterTitle=''">取消</el-button>
           <el-button
             type="primary"
-            :disabled="newChapterTitle ? false : true"
+            :disabled="/^\s*$/.test(newChapterTitle)? true : false"
             @click="newChapter"
           >
             确定

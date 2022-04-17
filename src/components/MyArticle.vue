@@ -28,7 +28,7 @@
       font="serif"
     >
       <div
-        :class="contentEditable?'i-mdi:content-save':'i-mdi:pen'"
+        :class="contentEditable ? 'i-mdi:content-save' : 'i-mdi:pen'"
         absolute
         top-3
         right-5
@@ -45,7 +45,7 @@
         :contenteditable="contentEditable"
         text="base"
         ref="contentEditor"
-        @input="saveContentDebounce($event.target,true)"
+        @input="saveContentDebounce($event.target, true)"
       >
         {{ store.content }}
       </div>
@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 import { useCurrentArticle } from '../store/currentArticle'
-import { debounce } from '../common/utils'
+import { debounce, removeFLSpaces } from '../common/utils'
 import chapterApi from '../apis/chapterApi'
 const emit = defineEmits<{
   (e: 'updateTitle', id: string, title: string): void
@@ -75,31 +75,39 @@ const setUnTitleEditable = () => {
   titleEditable.value = false
 }
 const changeContentEditable = async () => {
-  contentEditable.value = !contentEditable.value
-  if(!contentEditable.value){
-    await saveContent(contentEditor.value as HTMLDivElement,false)
-    preventAutoSave()
-  }
+    contentEditable.value = !contentEditable.value
+    if (!contentEditable.value) {
+      await saveContent(contentEditor.value as HTMLDivElement, false)
+      preventAutoSave()
+    }
 }
 
-async function saveContent(contentEditor: HTMLDivElement,isAutoSave:boolean) {
-  let content = contentEditor.innerText
-  await chapterApi.updateChapterContent({ id: store.id, content })
-  store.setContent(content)
-  let now = new Date()
-  saveInfo.value = `文章${isAutoSave?'自动':''}保存于${now.toLocaleTimeString()}`
+async function saveContent(contentEditor: HTMLDivElement, isAutoSave: boolean) {
+  try {
+    let content = contentEditor.innerText
+    await chapterApi.updateChapterContent({ id: store.id, content })
+    store.setContent(content)
+    let now = new Date()
+    saveInfo.value = `文章${isAutoSave ? '自动' : ''}保存于${now.toLocaleTimeString()}`
+  } catch (error) {
+    alert(error)
+  }
 }
 async function saveTitle(title: string) {
-  title = title ? title : ' '
-  store.setTitle(title)
-  emit('updateTitle', store.id, title)
-  await chapterApi.updateChapterName({ id: store.id, title })
+  try {
+    title = title ? title : ' '
+    store.setTitle(title)
+    emit('updateTitle', store.id, title)
+    await chapterApi.updateChapterName({ id: store.id, title })
+  } catch (error) {
+    alert(error)
+  }
 }
-const {fnDebounced: saveContentDebounce,clearTime:preventAutoSave} = debounce(saveContent, 5000)
+const { fnDebounced: saveContentDebounce, clearTime: preventAutoSave } = debounce(saveContent, 5000)
 const clickExceptInput = (e: Event) => {
   if (titleEditable.value && e.target != titleInput.value) {
     setUnTitleEditable()
-    titleEdited.value = titleEdited.value.replace(/(.+?)\s*$/, `$1`)
+    titleEdited.value = removeFLSpaces(titleEdited.value)
     saveTitle(titleEdited.value)
     e.stopPropagation()
   }

@@ -23,6 +23,7 @@
 import { useRoute, useRouter } from 'vue-router'
 import bookApi from '../apis/bookApi'
 import chapterApi, { ChapterIdName } from '../apis/chapterApi'
+import { removeFLSpaces } from '../common/utils';
 import { useCurrentArticle } from '../store/currentArticle'
 const w = ref('0')
 const route = useRoute()
@@ -83,6 +84,7 @@ try {
     { name: '关于', logo: 'i-mdi:information-outline' },
   ]
 } catch (error) {
+  setLoading(false)
   alert(error)
 }
 const updateCatalogItemTitle = (id: string, title: string) => {
@@ -133,12 +135,14 @@ const deleteCatalogItem = async (id: string) => {
 const newChapter = async (name: string) => {
   try {
     setLoading(true)
+    name = removeFLSpaces(name)
     const chapterId = (await chapterApi.create({ bookId: novelId.value, chapterName: name })).result
       .id
     setLoading(false)
     addCatalogItem(chapterId, name)
     store.updateChapter(chapterId, name, '')
   } catch (error) {
+    setLoading(false)
     alert(error)
   }
 }
