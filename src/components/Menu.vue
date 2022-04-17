@@ -42,10 +42,7 @@
           relative
           v-for="item in menuItems"
           :key="item.id"
-          @click="
-            item.clickMe()
-            select(item)
-          "
+          @click="item.clickMe();select(item)"
           :class="getbgColor(item)"
           class="item"
         >
