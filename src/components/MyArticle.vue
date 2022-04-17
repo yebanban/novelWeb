@@ -38,7 +38,7 @@
       ></div>
       <p p="y-2 x-6" text="right sm gray-400">{{ saveInfo }}</p>
       <div
-        min-h="[70vh]"
+        min-h="[68vh]"
         w-full
         inline-block
         outline-none

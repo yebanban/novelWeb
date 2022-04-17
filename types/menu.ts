@@ -10,4 +10,5 @@ interface Menu {
     logo: string
     menuItems?: MenuItem[]
     duration?: number
+    clickMe?:()=>void
 }

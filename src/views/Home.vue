@@ -1,10 +1,10 @@
 <template>
-  <div py-10 m-auto w="[65vw]" :class="loading?'blur-sm':''">
+  <div py-10 m-auto w="[65vw]" :class="loading ? 'blur-sm' : ''">
     <div flex justify="between" px-3>
       <h2>书架</h2>
       <div flex="~ gap-5">
         <div btn-logo i-ph:magnifying-glass />
-        <div btn-logo i-ph:plus />
+        <div btn-logo i-ph:plus @click="openInputDialog" />
       </div>
     </div>
     <div
@@ -44,6 +44,12 @@
         <p p="x-3 y-2">{{ book.name }}</p>
       </div>
     </div>
+    <input-dialog
+      v-model="dialogVisible"
+      @clickEnter="newBook"
+      title="新建小说"
+      placeholder="请输入新小说名"
+    />
   </div>
 </template>
 
@@ -53,8 +59,10 @@ import bookApi, { BookInfo } from '../apis/bookApi'
 const router = useRouter()
 const books = ref<BookInfo[]>()
 const setLoading = inject<(on: boolean) => void>('setLoading') as (on: boolean) => void
-const loading=inject<boolean>('loading')
+const loading = inject<boolean>('loading')
+const dialogVisible = ref(false)
 document.title = '夜半小说网'
+
 try {
   setLoading(true)
   books.value = (await bookApi.getAllBook()).result.books
@@ -62,7 +70,22 @@ try {
 } catch (error) {
   alert(error)
 }
-
+const openInputDialog = () => {
+  dialogVisible.value = true
+}
+const addBook = (book:BookInfo) => {
+  books.value?.push(book)
+}
+const newBook = async (name: string) => {
+  try {
+    setLoading(true)
+    const bookId = (await bookApi.create({ name })).result.id
+    addBook({id:bookId, name})
+    setLoading(false)
+  } catch (error) {
+    alert(error)
+  }
+}
 const openBook = (book: BookInfo) => {
   router.push({ name: 'edit', params: { name: book.name, id: book.id } })
 }

@@ -28,6 +28,7 @@
             :logo="menu.logo"
             :menu-items="menu.menuItems"
             :duration="menu.duration"
+            @clickMe="menu.clickMe?menu.clickMe():null"
           />
         </div>
         <div i-mdi:close btn-logo absolute top-3 right-3 text="gray-600" @click="close"></div>

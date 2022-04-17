@@ -2,7 +2,7 @@
   <div>
     <div
       menu-item
-      @click="expand"
+      @click="expand();emit('clickMe')"
       :class="{ 'bg-blue-200/400': isShowItems, 'hover:bg-blue-200/400': isShowItems }"
       mb-1
     >
@@ -88,10 +88,13 @@ const props = withDefaults(
     duration: 0.5,
   }
 )
+const emit=defineEmits<{
+  (e:'clickMe'):void
+}>()
 const dialogVisible = ref(false)
 const wantToDelete = ref('')
 const openNewChapterDialog = inject<() => void>('openNewChapterDialog')
-const deleteMenuItem = inject<(id: string) => Promise<void>>('deleteMenuItem')
+const deleteCatalogItem = inject<(id: string) => Promise<void>>('deleteCatalogItem')
 const showDeleteDialog = (id: string) => {
   dialogVisible.value = true
   wantToDelete.value = id
@@ -113,8 +116,16 @@ const select = (menuItem: MenuItem) => {
 }
 const deleteChapter = async (id: string) => {
   dialogVisible.value = false
-  await chapterApi.deleteChapter({ id })
-  await (deleteMenuItem as (id: string) => Promise<void>)(id)
+  try {
+    await chapterApi.deleteChapter({ id })
+  if(deleteCatalogItem){
+    await deleteCatalogItem(id)
+  }
+  } catch (error) {
+    alert(error)
+  }
+  
+  
 }
 </script>
 
