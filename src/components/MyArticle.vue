@@ -36,7 +36,10 @@
         text="gray-600"
         @click="changeContentEditable"
       ></div>
-      <p p="y-2 x-6" text="right sm gray-400">{{ saveInfo }}</p>
+      <div p="y-2 x-2" text="sm gray-400" flex justify="between">
+        <span>本章字数：{{ contentWordsCount }}</span>
+        <span text="right">{{ saveInfo }}</span>
+      </div>
       <div
         min-h="[68vh]"
         w-full
@@ -49,24 +52,29 @@
       >
         {{ store.content }}
       </div>
+      
     </div>
   </article>
 </template>
 
 <script setup lang="ts">
 import { useCurrentArticle } from '../store/currentArticle'
-import { debounce, removeFLSpaces } from '../common/utils'
+import { countWords, debounce, removeFLSpaces } from '../common/utils'
 import chapterApi from '../apis/chapterApi'
 const emit = defineEmits<{
   (e: 'updateTitle', id: string, title: string): void
 }>()
 const store = useCurrentArticle()
+
 const titleEdited = ref(store.title)
 const saveInfo = ref(' ')
 const titleEditable = ref(false)
 const contentEditable = ref(false)
 const titleInput = ref<HTMLInputElement | null>(null)
 const contentEditor = ref<HTMLDivElement | null>(null)
+
+const contentWordsCount=ref(0)
+let countTimer:number|null=null
 const setTitleEditable = () => {
   titleEdited.value = store.title
   titleEditable.value = true
@@ -74,12 +82,13 @@ const setTitleEditable = () => {
 const setUnTitleEditable = () => {
   titleEditable.value = false
 }
+
 const changeContentEditable = async () => {
-    contentEditable.value = !contentEditable.value
-    if (!contentEditable.value) {
-      await saveContent(contentEditor.value as HTMLDivElement, false)
-      preventAutoSave()
-    }
+  contentEditable.value = !contentEditable.value
+  if (!contentEditable.value) {
+    await saveContent(contentEditor.value as HTMLDivElement, false)
+    preventAutoSave()
+  }
 }
 
 async function saveContent(contentEditor: HTMLDivElement, isAutoSave: boolean) {
@@ -103,6 +112,7 @@ async function saveTitle(title: string) {
     alert(error)
   }
 }
+
 const { fnDebounced: saveContentDebounce, clearTime: preventAutoSave } = debounce(saveContent, 5000)
 const clickExceptInput = (e: Event) => {
   if (titleEditable.value && e.target != titleInput.value) {
@@ -112,9 +122,17 @@ const clickExceptInput = (e: Event) => {
     e.stopPropagation()
   }
 }
-window.addEventListener('click', clickExceptInput, true)
+onMounted(() => {
+  window.addEventListener('click', clickExceptInput, true)
+  contentWordsCount.value = countWords(contentEditor.value?.innerText as string)
+  countTimer=setInterval(()=>{
+    contentWordsCount.value = countWords(contentEditor.value?.innerText as string)
+  },1000)
+})
+
 onUnmounted(() => {
   window.removeEventListener('click', clickExceptInput)
+  clearInterval(countTimer as number)
 })
 </script>
 

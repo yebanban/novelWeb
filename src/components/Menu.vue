@@ -71,6 +71,7 @@
         </span>
       </template>
     </el-dialog>
+    <Dialog v-model="dialogVisible" tips="是否删除该章节？" @clickEnter="deleteChapter(wantToDelete)"/>
   </div>
 </template>
 

@@ -3,7 +3,7 @@
     <my-aside @expand="addWidth" @close="reduceWidth" :novelId="novelId" :menuList="MenuList" />
     <div :style="{ width: w }" min-h="full" duration-500 ease-in-out></div>
     <my-article
-      v-if="MenuList[1]?.menuItems?.length"
+      v-if="MenuList?MenuList[1]?.menuItems?.length:false"
       my-8
       mx-16
       flex="1"
@@ -86,6 +86,7 @@ try {
 } catch (error) {
   setLoading(false)
   alert(error)
+  router.push('/home')
 }
 const updateCatalogItemTitle = (id: string, title: string) => {
   if (MenuList.value) {

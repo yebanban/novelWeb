@@ -30,6 +30,7 @@
           cursor-pointer
           hover="transition-300 shadow-light-500 shadow-xl -translate-y-1"
           @click="openBook(book)"
+          @contextmenu.prevent.stop="showDeleteMenu($event, book.id)"
         >
           <div shadow="sm blue-100" rounded overflow-hidden>
             <!-- <div v-if="book.Cover"></div>
@@ -51,17 +52,48 @@
       placeholder="请输入新小说名"
     />
   </div>
+  <div
+    v-if="isShowMenu"
+    p="y-1 "
+    w-25
+    border="1 gray-400"
+    shadow="sm gray-900/10"
+    rounded-md
+    absolute
+    z-10
+    bg="white"
+    :style="{ top: menuTop, left: menuLeft }"
+  >
+    <div
+      font-mono
+      text="sm center gray-900"
+      p-y-1
+      p-x-3
+      hover-bg="blue-500/20"
+      @click="openDeleteDialog"
+      select-none
+      cursor-pointer
+    >
+      删除本书
+    </div>
+  </div>
+  <Dialog v-model="deleteDialogVisible" tips="是否删除本书？" @clickEnter="deleteBook" />
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import bookApi, { BookInfo } from '../apis/bookApi'
-import { removeFLSpaces } from '../common/utils';
+import { removeFLSpaces } from '../common/utils'
 const router = useRouter()
 const books = ref<BookInfo[]>()
 const setLoading = inject<(on: boolean) => void>('setLoading') as (on: boolean) => void
 const loading = inject<boolean>('loading')
 const dialogVisible = ref(false)
+const deleteDialogVisible = ref(false)
+const currentSelectedId = ref('')
+const isShowMenu = ref(false)
+const menuTop = ref('')
+const menuLeft = ref('')
 document.title = '夜半小说网'
 
 try {
@@ -75,15 +107,48 @@ try {
 const openInputDialog = () => {
   dialogVisible.value = true
 }
-const addBook = (book:BookInfo) => {
+const openDeleteDialog = () => {
+  deleteDialogVisible.value = true
+}
+const addBook = (book: BookInfo) => {
   books.value?.push(book)
+}
+const removeBook = (id: string) => {
+  const index = books.value?.findIndex(book => book.id === id) as number
+  if (index >= 0) books.value?.splice(index, 1)
 }
 const newBook = async (name: string) => {
   try {
+    
     setLoading(true)
-    name=removeFLSpaces(name)
+    name = removeFLSpaces(name)
     const bookId = (await bookApi.create({ name })).result.id
-    addBook({id:bookId, name})
+    addBook({ id: bookId, name })
+    setLoading(false)
+  } catch (error) {
+    setLoading(false)
+    alert(error)
+  }
+}
+const showDeleteMenu = (e: MouseEvent, id: string) => {
+  isShowMenu.value = true
+  let scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop
+  let scrollLeft =
+    document.documentElement.scrollLeft || window.pageXOffset || document.body.scrollLeft
+  menuTop.value = e.clientY+scrollTop + 'px'
+  menuLeft.value = e.clientX+scrollLeft + 'px'
+  currentSelectedId.value = id
+}
+const hiddenDeleteMenu = (e: MouseEvent) => {
+  e.preventDefault()
+  isShowMenu.value = false
+}
+const deleteBook = async () => {
+  deleteDialogVisible.value = false
+  try {
+    setLoading(true)
+    await bookApi.deleteBook({ id: currentSelectedId.value })
+    removeBook(currentSelectedId.value)
     setLoading(false)
   } catch (error) {
     setLoading(false)
@@ -93,6 +158,11 @@ const newBook = async (name: string) => {
 const openBook = (book: BookInfo) => {
   router.push({ name: 'edit', params: { name: book.name, id: book.id } })
 }
+
+onMounted(() => {
+  window.addEventListener('click', hiddenDeleteMenu)
+  window.addEventListener('contextmenu', hiddenDeleteMenu)
+})
 </script>
 
 <style lang="scss" scoped></style>

@@ -24,6 +24,16 @@ export const throttle = (fn: Function, delay: number) => {
     }, delay)
   }
 }
-export const removeFLSpaces=(s:string):string=>{
-  return s.replace(/^\s*(.+?)\s*$/,`$1`)
+export const removeFLSpaces = (s: string): string => {
+  return s.replace(/^\s*(.+?)\s*$/, `$1`)
+}
+export const countWords = (words: string): number => {
+  words = removeFLSpaces(words)
+  let wordArray = words.split(/[\s\n]+/)
+  let count = 0
+  for (let word of wordArray) {
+    word = word.replace(/[\x00-\xff]+/g, 'm')
+    count += word.length
+  }
+  return count
 }

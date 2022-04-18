@@ -1,13 +1,13 @@
 <template>
 <el-dialog :modelValue="modelValue" @update:modelValue="(newValue:boolean)=>emit('update:modelValue',newValue)" :title="title" width="50%" draggable>
-      <el-input v-model="newChapterTitle" :placeholder="placeholder" />
+      <el-input v-model="input" :placeholder="placeholder" />
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="emit('update:modelValue',false);newChapterTitle=''">取消</el-button>
+          <el-button @click="emit('update:modelValue',false);input=''">取消</el-button>
           <el-button
             type="primary"
-            :disabled="/^\s*$/.test(newChapterTitle)? true : false"
-            @click="newChapter"
+            :disabled="/^\s*$/.test(input)? true : false"
+            @click="enter"
           >
             确定
           </el-button>
@@ -26,11 +26,11 @@ const emit=defineEmits<{
     (e:'update:modelValue',a:boolean):void,
     (e:'clickEnter',name:string):void
 }>()
-const newChapterTitle=ref('')
-const newChapter=()=>{
-    emit('clickEnter',newChapterTitle.value)
+const input=ref('')
+const enter=()=>{
+    emit('clickEnter',input.value)
     emit('update:modelValue',false)
-    newChapterTitle.value=''
+    input.value=''
 }
 </script> 
 
