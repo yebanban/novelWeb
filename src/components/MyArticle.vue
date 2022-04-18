@@ -95,7 +95,7 @@ async function saveContent(contentEditor: HTMLDivElement, isAutoSave: boolean) {
   try {
     let content = contentEditor.innerText
     await chapterApi.updateChapterContent({ id: store.id, content })
-    store.setContent(content)
+    //store.setContent(content)
     let now = new Date()
     saveInfo.value = `文章${isAutoSave ? '自动' : ''}保存于${now.toLocaleTimeString()}`
   } catch (error) {
