@@ -103,6 +103,7 @@ const addCatalogItem = (id: string, title: string) => {
     const menuItems = MenuList.value[1].menuItems
     if (menuItems) {
       let index = menuItems.findIndex(item => getOrder(item.itemName) > getOrder(title))
+      if(index===-1) index=menuItems.length
       menuItems.forEach(item => (item.selected = false))
       menuItems.splice(index,0,createCatalogItem(id, title, true))
     }
