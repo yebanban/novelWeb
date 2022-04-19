@@ -38,6 +38,6 @@ export const countWords = (words: string): number => {
   return count
 }
 export const getOrder=(title:string):number=>{
-  let regArray=/\d+/.exec(title)
+  let regArray=/(?<=第)\d+(?=章)/.exec(title)
   return regArray?+regArray[0]:0
 }
