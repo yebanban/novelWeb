@@ -23,7 +23,7 @@
 import { useRoute, useRouter } from 'vue-router'
 import bookApi from '../apis/bookApi'
 import chapterApi, { ChapterIdName } from '../apis/chapterApi'
-import { removeFLSpaces } from '../common/utils';
+import { removeFLSpaces,getOrder } from '../common/utils';
 import { useCurrentArticle } from '../store/currentArticle'
 const w = ref('0')
 const route = useRoute()
@@ -59,7 +59,7 @@ const createCatalogItem = (id: string, title: string, selected: boolean) => {
 try {
   setLoading(true)
   chapters.value = (await bookApi.getChapters({ id: novelId.value })).result.chapters
-  //chapters.value.sort((a, b) => a.title.localeCompare(b.title))
+  chapters.value.sort((a, b) => getOrder(a.title)-getOrder(b.title))
   if (chapters.value.length > 0) {
     let content = (await chapterApi.getChapterContent({ id: chapters.value[0].id })).result.content
     store.updateChapter(chapters.value[0].id, chapters.value[0].title, content)
@@ -94,7 +94,7 @@ const updateCatalogItemTitle = (id: string, title: string) => {
     if (menuItems) {
       let index = menuItems.findIndex(item => item.id === id)
       menuItems[index].itemName = title
-      //menuItems.sort((a, b) => a.itemName.localeCompare(b.itemName))
+      menuItems.sort((a, b) => getOrder(a.itemName)-getOrder(b.itemName))
     }
   }
 }
@@ -102,9 +102,9 @@ const addCatalogItem = (id: string, title: string) => {
   if (MenuList.value) {
     const menuItems = MenuList.value[1].menuItems
     if (menuItems) {
-      //let index = menuItems.findIndex(item => item.itemName.localeCompare(title) > 0)
+      let index = menuItems.findIndex(item => getOrder(item.itemName) > getOrder(title))
       menuItems.forEach(item => (item.selected = false))
-      menuItems.push(createCatalogItem(id, title, true))
+      menuItems.splice(index,0,createCatalogItem(id, title, true))
     }
   }
 }
