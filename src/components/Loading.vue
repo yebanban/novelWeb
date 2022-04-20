@@ -1,5 +1,5 @@
 <template>
-  <div w-full h-full bg="transparent" absolute z="10">
+  <div w-full h-full bg="transparent" fixed z="10">
     <div text-center>
       <div w-40 h-40 relative m-auto m-t="[30vh]">
         <div
@@ -13,7 +13,10 @@
           top="1/2"
           duration-1000
           ease-linear
-          :style="{ transform: `rotate(${36 * (i - 1 + a)}deg)`, 'transform-origin': '0 -50%' }"
+          :style="{
+            transform: `rotate(${36 * (i - 1 + a)}deg)`,
+            'transform-origin': '0 -50%',
+          }"
         ></div>
 
         <span absolute left="1/3" bottom="5" font="sans semibold" text="sm gray-600">

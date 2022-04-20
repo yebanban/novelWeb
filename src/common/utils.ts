@@ -37,7 +37,13 @@ export const countWords = (words: string): number => {
   }
   return count
 }
-export const getOrder=(title:string):number=>{
-  let regArray=/(?<=第)\d+(?=章)/.exec(title)
-  return regArray?+regArray[0]:0
+export const getOrder = (title: string): number => {
+  let regArray = /(?<=第)\d+(?=章)/.exec(title)
+  return regArray ? +regArray[0] : 0
+}
+export const getScroll = () => {
+  return {
+    scrollY: document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop,
+    scrollX: document.documentElement.scrollLeft || window.pageXOffset || document.body.scrollLeft,
+  }
 }

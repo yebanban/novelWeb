@@ -9,7 +9,7 @@ provide('loading',loading)
 </script>
 
 <template>
-<Loading  v-if='loading'/>
+<Loading  v-if="loading"/>
 <suspense >
   <router-view />
 </suspense>

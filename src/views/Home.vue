@@ -90,7 +90,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import bookApi, { BookInfo } from '../apis/bookApi'
-import { removeFLSpaces } from '../common/utils'
+import { getScroll, removeFLSpaces } from '../common/utils'
 const router = useRouter()
 const books = ref<BookInfo[]>()
 const setLoading = inject<(on: boolean) => void>('setLoading') as (on: boolean) => void
@@ -159,11 +159,9 @@ const newBook = async (name: string) => {
 }
 const showDeleteMenu = (e: MouseEvent, id: string) => {
   isShowMenu.value = true
-  let scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop
-  let scrollLeft =
-    document.documentElement.scrollLeft || window.pageXOffset || document.body.scrollLeft
-  menuTop.value = e.clientY+scrollTop + 'px'
-  menuLeft.value = e.clientX+scrollLeft + 'px'
+  let { scrollX, scrollY }=getScroll()
+  menuTop.value = e.clientY+scrollY + 'px'
+  menuLeft.value = e.clientX+scrollX + 'px'
   currentSelectedId.value = id
 }
 const hiddenDeleteMenu = (e: MouseEvent) => {
