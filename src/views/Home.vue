@@ -1,5 +1,5 @@
 <template>
-  <div py-10 m-auto w="[65vw]" :class="loading ? 'blur-sm' : ''">
+  <div py-10 m-x-60  :class="loading ? 'blur-sm' : ''">
     <div flex justify="between" px-3>
       <h2>书架</h2>
       <div flex="~ gap-5">
@@ -16,10 +16,10 @@
       shadow="xl blue-100"
       w="full"
       box-border
-      p="y-10 x-[4vw]"
-      flex="~ wrap gap-15"
+      p="y-10 x-15"
+      grid='~ sm:cols-1 md:cols-2 lg:cols-3 xl:cols-4 2xl:cols-5 gap-8'
     >
-      <div v-for="book in books" w-40>
+      <div v-for="book in books" >
         <div
           border="1 gray-300"
           rounded-md
@@ -37,7 +37,7 @@
             <div v-else bg="gray-400/20" w='[10vw]' h-40 text-lg box-border p="x-3 y-1">
               {{ book.name }}
             </div> -->
-            <div bg="gray-400/20" h-40  text-lg box-border p="x-3 y-1">
+            <div bg="gray-400/20" h-40  text-lg p="x-3 y-1">
               {{ book.name }}
             </div>
           </div>
