@@ -62,15 +62,6 @@
         </div>
       </div>
     </Transition>
-    <el-dialog v-model="dialogVisible" title="提示" width="50%" draggable>
-      <span>是否删除该章节？</span>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="deleteChapter(wantToDelete)">确定</el-button>
-        </span>
-      </template>
-    </el-dialog>
     <Dialog v-model="dialogVisible" tips="是否删除该章节？" @clickEnter="deleteChapter(wantToDelete)"/>
   </div>
 </template>
