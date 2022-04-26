@@ -1,11 +1,13 @@
 <template>
   <div bg="light-600" min-h="full" flex :class="loading ? 'blur-sm' : ''">
-    <my-aside @expand="addWidth" @close="reduceWidth" :novelId="novelId" :menuList="MenuList" />
+    <my-aside @expand="addWidth" @close="reduceWidth" :novelId="novelId" :menuList="MenuList" z-10/>
     <div :style="{ width: w }" min-h="full" duration-500 ease-in-out></div>
     <my-article
       v-if="MenuList?MenuList[1]?.menuItems?.length:false"
-      my-8
-      mx-16
+      md:my-8
+      md:mx-16
+      my-4
+      mx-1
       flex="1"
       @updateTitle="updateCatalogItemTitle"
     />

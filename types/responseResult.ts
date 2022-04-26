@@ -3,4 +3,4 @@ interface ResponseResult<T> {
     message: string
     type: 'success' | 'error'
     result: T
-  }
+}

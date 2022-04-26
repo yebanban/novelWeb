@@ -18,12 +18,13 @@
       </div>
     </div>
     <div
-      mt-10
+      md:mt-10
+      mt-4
       min-h="4/5"
       bg="white"
       whitespace-pre-wrap
       rounded-3xl
-      p="x-10 y-6"
+      p="x-3 md:x-10 y-6"
       relative
       font="serif"
     >
