@@ -1,5 +1,5 @@
 <template>
-  <div py-10 m-x-60  :class="loading ? 'blur-sm' : ''">
+  <div py-10 mx-10 md:m-x-60   :class="loading ? 'blur-sm' : ''">
     <div flex justify="between" px-3>
       <h2>书架</h2>
       <div flex="~ gap-5">
