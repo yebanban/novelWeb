@@ -188,6 +188,10 @@ onMounted(() => {
   window.addEventListener('click', hiddenDeleteMenu)
   window.addEventListener('contextmenu', hiddenDeleteMenu)
 })
+onBeforeUnmount(()=>{
+  window.removeEventListener('click', hiddenDeleteMenu)
+  window.removeEventListener('contextmenu', hiddenDeleteMenu)
+})
 </script>
 
 <style lang="scss" scoped></style>
