@@ -151,7 +151,6 @@ const newChapter = async (name: string) => {
     addCatalogItem(chapterId, name)
     store.updateChapter(chapterId, name, '')
     await modal.value?.changeContentWordsCount()
-    console.log(store.content)
   } catch (error) {
     setLoading(false)
     alert(error)
