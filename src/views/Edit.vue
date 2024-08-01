@@ -18,7 +18,7 @@ import { removeFLSpaces, getOrder } from '../common/utils';
 import { useCurrentArticle } from '../store/currentArticle'
 import MyArticle from '../components/MyArticle.vue';
 import MyAside from '../components/MyAside.vue';
-const modal = ref<InstanceType<typeof MyArticle> | null>(null)
+const modal = ref<InstanceType<typeof MyArticle>&{changeContentWordsCount: ()=>Promise<void>} | null>(null)
 const menuScrollIndex = ref(0)
 const w = ref('0')
 const route = useRoute()
