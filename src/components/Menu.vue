@@ -82,6 +82,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: 'clickMe'): void
 }>()
+
 const dialogVisible = ref(false)
 const wantToDelete = ref('')
 const openNewChapterDialog = inject<() => void>('openNewChapterDialog')

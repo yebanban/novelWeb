@@ -9,6 +9,7 @@
       my-4
       mx-1
       flex="1"
+      ref="modal"
       @updateTitle="updateCatalogItemTitle"
     />
     <blank-article v-else my="[10vh]" mx-16 flex="1" />
@@ -27,6 +28,8 @@ import bookApi from '../apis/bookApi'
 import chapterApi, { ChapterIdName } from '../apis/chapterApi'
 import { removeFLSpaces,getOrder } from '../common/utils';
 import { useCurrentArticle } from '../store/currentArticle'
+import MyArticle from '../components/MyArticle.vue';
+const modal = ref<InstanceType<typeof MyArticle> | null>(null)
 const w = ref('0')
 const route = useRoute()
 const router = useRouter()
@@ -51,6 +54,7 @@ const createCatalogItem = (id: string, title: string, selected: boolean) => {
       try {
         let content = (await chapterApi.getChapterContent({ id: this.id })).result.content
         store.updateChapter(this.id, this.itemName, content)
+        await modal.value?.changeContentWordsCount()
       } catch (error) {
         alert(error)
       }
@@ -133,6 +137,7 @@ const deleteCatalogItem = async (id: string) => {
       menuItems.forEach(item => (item.selected = false))
       item.selected = true
       store.updateChapter(item.id, item.itemName, content)
+      await modal.value?.changeContentWordsCount()
     }
   }
 }
@@ -145,6 +150,8 @@ const newChapter = async (name: string) => {
     setLoading(false)
     addCatalogItem(chapterId, name)
     store.updateChapter(chapterId, name, '')
+    await modal.value?.changeContentWordsCount()
+    console.log(store.content)
   } catch (error) {
     setLoading(false)
     alert(error)

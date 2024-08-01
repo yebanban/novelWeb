@@ -12,6 +12,7 @@ export const debounce = (fn: Function, delay: number) => {
     },
   }
 }
+
 export const throttle = (fn: Function, delay: number) => {
   let isRun = false
   let timer: number | null = null
@@ -24,6 +25,7 @@ export const throttle = (fn: Function, delay: number) => {
     }, delay)
   }
 }
+
 export const removeFLSpaces = (s: string): string => {
   return s.replace(/^\s*(.+?)\s*$/, `$1`)
 }
@@ -47,3 +49,18 @@ export const getScroll = () => {
     scrollX: document.documentElement.scrollLeft || window.pageXOffset || document.body.scrollLeft,
   }
 }
+type Params<T extends (...args:unknown[])=>unknown>= T extends (...args:infer P)=>unknown ? P :never
+const throttleOfType = <T extends (...args:any[])=>void>(fn: T, delay: number) => {
+  let isRun = false
+  let timer: number | null = null
+  return function (this: any, ...args: Params<T>) {
+    if (isRun) return
+    fn.apply(this, args)
+    isRun = true
+    timer = setTimeout(() => {
+      isRun = false
+    }, delay)
+  }
+}
+
+const a=throttleOfType(countWords,300)

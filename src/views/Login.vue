@@ -20,6 +20,7 @@ const loading = inject<boolean>('loading')
 const login = async () => {
   try {
     let token = (await loginApi.login({ password: input.value })).result.token
+    
     if (token) {
       sessionStorage.setItem('token', token)
       router.push('/home')
