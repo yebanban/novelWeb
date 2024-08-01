@@ -6,19 +6,22 @@
       {{ name }}
     </div>
     <Transition appear name="itemList">
-      <div :style="{ 'transition-duration': duration + 's' }" max-h="[35vh]" shadow="sm gray-200" rounded-lg box-border
-        overflow-y-auto class="hideScrollbar" ref="menu" v-if="isShowItems">
+      <div :style="{ 'transition-duration': duration + 's' }" max-h="[38vh]" shadow="sm gray-200" rounded-lg box-border
+        overflow-hidden v-if="isShowItems">
         <div p="l-4 r-2 y-2" text="xs center" cursor="pointer" border-gray-100 border="0 b-1"
           @click="openNewChapterDialog" bg="red-100/40 hover:red-100/70 active:red-100">
           新建章节
         </div>
-        <div p="l-4 r-2 y-2" text="xs" cursor="pointer" border-gray-100 border="0 b-1" truncate relative
+        <div max-h="[33vh]" overflow-y-auto class="hideScrollbar" ref="menu">
+          <div p="l-4 r-2 y-2" text="xs" cursor="pointer" border-gray-100 border="0 b-1" truncate relative
           v-for="item in menuItems" :key="item.id" @click="item.clickMe(); select(item)" :class="getbgColor(item)"
           class="item">
           {{ item.itemName }}
           <div v-if="item.canDelete" class="delete" hidden btn-logo i-mdi:trash-can-outline absolute right="1" top="1/2"
             translate-y="-1/2" @click="showDeleteDialog(item.id)"></div>
         </div>
+        </div>
+        
       </div>
     </Transition>
     <Dialog v-model="dialogVisible" tips="是否删除该章节？" @clickEnter="deleteChapter(wantToDelete)" />
@@ -80,7 +83,7 @@ const deleteChapter = async (id: string) => {
 }
 const menuScrollTo = (index: number) => {
   nextTick().then(function () {
-    menu.value?.scrollTo(0, index <= 2 ? 0 : (index - 2) * 32.7)
+    menu.value?.scrollTo(0, index <= 3 ? 0 : (index - 3) * 32.7)
   })
 }
 watch(() => props.menuScrollIndex, (menuScrollIndex) => {
@@ -100,5 +103,6 @@ watch(() => props.menuScrollIndex, (menuScrollIndex) => {
       display: block;
     }
   }
+  
 }
 </style>
