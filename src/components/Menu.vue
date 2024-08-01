@@ -1,67 +1,27 @@
 <template>
   <div>
-    <div
-      menu-item
-      @click="expand();emit('clickMe')"
-      :class="{ 'bg-blue-200/400': isShowItems, 'hover:bg-blue-200/400': isShowItems }"
-      mb-1
-    >
+    <div menu-item @click="expand(); emit('clickMe')"
+      :class="{ 'bg-blue-200/400': isShowItems, 'hover:bg-blue-200/400': isShowItems }" mb-1>
       <div :class="logo" text="base"></div>
       {{ name }}
     </div>
     <Transition appear name="itemList">
-      <div
-        :style="{ 'transition-duration': duration + 's' }"
-        max-h="[35vh]"
-        shadow="sm gray-200"
-        rounded-lg
-        box-border
-        overflow-y-auto
-        class="hideScrollbar"
-        v-if="isShowItems"
-      >
-        <div
-          p="l-4 r-2 y-2"
-          text="xs center"
-          cursor="pointer"
-          border-gray-100
-          border="0 b-1"
-          @click="openNewChapterDialog"
-          bg="red-100/40 hover:red-100/70 active:red-100"
-        >
+      <div :style="{ 'transition-duration': duration + 's' }" max-h="[35vh]" shadow="sm gray-200" rounded-lg box-border
+        overflow-y-auto class="hideScrollbar" ref="menu" v-if="isShowItems">
+        <div p="l-4 r-2 y-2" text="xs center" cursor="pointer" border-gray-100 border="0 b-1"
+          @click="openNewChapterDialog" bg="red-100/40 hover:red-100/70 active:red-100">
           新建章节
         </div>
-        <div
-          p="l-4 r-2 y-2"
-          text="xs"
-          cursor="pointer"
-          border-gray-100
-          border="0 b-1"
-          truncate
-          relative
-          v-for="item in menuItems"
-          :key="item.id"
-          @click="item.clickMe();select(item)"
-          :class="getbgColor(item)"
-          class="item"
-        >
+        <div p="l-4 r-2 y-2" text="xs" cursor="pointer" border-gray-100 border="0 b-1" truncate relative
+          v-for="item in menuItems" :key="item.id" @click="item.clickMe(); select(item)" :class="getbgColor(item)"
+          class="item">
           {{ item.itemName }}
-          <div
-            v-if="item.canDelete"
-            class="delete"
-            hidden
-            btn-logo
-            i-mdi:trash-can-outline
-            absolute
-            right="1"
-            top="1/2"
-            translate-y="-1/2"
-            @click="showDeleteDialog(item.id)"
-          ></div>
+          <div v-if="item.canDelete" class="delete" hidden btn-logo i-mdi:trash-can-outline absolute right="1" top="1/2"
+            translate-y="-1/2" @click="showDeleteDialog(item.id)"></div>
         </div>
       </div>
     </Transition>
-    <Dialog v-model="dialogVisible" tips="是否删除该章节？" @clickEnter="deleteChapter(wantToDelete)"/>
+    <Dialog v-model="dialogVisible" tips="是否删除该章节？" @clickEnter="deleteChapter(wantToDelete)" />
   </div>
 </template>
 
@@ -74,6 +34,7 @@ const props = withDefaults(
     logo: string
     menuItems?: MenuItem[]
     duration?: number
+    menuScrollIndex: number
   }>(),
   {
     duration: 0.5,
@@ -82,7 +43,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: 'clickMe'): void
 }>()
-
+const menu = ref<HTMLDivElement | null>(null)
 const dialogVisible = ref(false)
 const wantToDelete = ref('')
 const openNewChapterDialog = inject<() => void>('openNewChapterDialog')
@@ -117,6 +78,14 @@ const deleteChapter = async (id: string) => {
     alert(error)
   }
 }
+const menuScrollTo = (index: number) => {
+  nextTick().then(function () {
+    menu.value?.scrollTo(0, index <= 2 ? 0 : (index - 2) * 32.7)
+  })
+}
+watch(() => props.menuScrollIndex, (menuScrollIndex) => {
+  menuScrollTo(menuScrollIndex)
+})
 </script>
 
 <style lang="scss" scoped>
@@ -124,6 +93,7 @@ const deleteChapter = async (id: string) => {
 .itemList-leave-to {
   max-height: 0;
 }
+
 .item {
   &:hover {
     .delete {

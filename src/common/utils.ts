@@ -41,7 +41,7 @@ export const countWords = (words: string): number => {
 }
 export const getOrder = (title: string): number => {
   let regArray = /(?<=第)\d+(?=章)/.exec(title)
-  return regArray ? +regArray[0] : 0
+  return regArray ? +regArray[0] : -1
 }
 export const getScroll = () => {
   return {

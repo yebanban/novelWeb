@@ -1,24 +1,12 @@
 <template>
   <div bg="light-600" min-h="full" flex :class="loading ? 'blur-sm' : ''">
-    <my-aside @expand="addWidth" @close="reduceWidth" :novelId="novelId" :menuList="MenuList" z-10/>
+    <my-aside @expand="addWidth" @close="reduceWidth" :novelId="novelId" :menuList="MenuList"
+      :menuScrollIndex="menuScrollIndex" z-10 />
     <div :style="{ width: w }" min-h="full" duration-500 ease-in-out></div>
-    <my-article
-      v-if="MenuList?MenuList[1]?.menuItems?.length:false"
-      md:my-8
-      md:mx-16
-      my-4
-      mx-1
-      flex="1"
-      ref="modal"
-      @updateTitle="updateCatalogItemTitle"
-    />
+    <my-article v-if="MenuList ? MenuList[1]?.menuItems?.length : false" md:my-8 md:mx-16 my-4 mx-1 flex="1" ref="modal"
+      @updateTitle="updateCatalogItemTitle" />
     <blank-article v-else my="[10vh]" mx-16 flex="1" />
-    <input-dialog
-      v-model="dialogVisible"
-      @clickEnter="newChapter"
-      title="新建章节"
-      placeholder="请输入新章节名"
-    />
+    <input-dialog v-model="dialogVisible" @clickEnter="newChapter" title="新建章节" placeholder="请输入新章节名" />
   </div>
 </template>
 
@@ -26,10 +14,12 @@
 import { useRoute, useRouter } from 'vue-router'
 import bookApi from '../apis/bookApi'
 import chapterApi, { ChapterIdName } from '../apis/chapterApi'
-import { removeFLSpaces,getOrder } from '../common/utils';
+import { removeFLSpaces, getOrder } from '../common/utils';
 import { useCurrentArticle } from '../store/currentArticle'
 import MyArticle from '../components/MyArticle.vue';
+import MyAside from '../components/MyAside.vue';
 const modal = ref<InstanceType<typeof MyArticle> | null>(null)
+const menuScrollIndex = ref(0)
 const w = ref('0')
 const route = useRoute()
 const router = useRouter()
@@ -54,6 +44,7 @@ const createCatalogItem = (id: string, title: string, selected: boolean) => {
       try {
         let content = (await chapterApi.getChapterContent({ id: this.id })).result.content
         store.updateChapter(this.id, this.itemName, content)
+        window.scrollTo(0, 0)
         await modal.value?.changeContentWordsCount()
       } catch (error) {
         alert(error)
@@ -65,7 +56,7 @@ const createCatalogItem = (id: string, title: string, selected: boolean) => {
 try {
   setLoading(true)
   chapters.value = (await bookApi.getChapters({ id: novelId.value })).result.chapters
-  chapters.value.sort((a, b) => getOrder(a.title)-getOrder(b.title))
+  chapters.value.sort((a, b) => getOrder(a.title) - getOrder(b.title))
   if (chapters.value.length > 0) {
     let content = (await chapterApi.getChapterContent({ id: chapters.value[0].id })).result.content
     store.updateChapter(chapters.value[0].id, chapters.value[0].title, content)
@@ -100,7 +91,9 @@ const updateCatalogItemTitle = (id: string, title: string) => {
     if (menuItems) {
       let index = menuItems.findIndex(item => item.id === id)
       menuItems[index].itemName = title
-      menuItems.sort((a, b) => getOrder(a.itemName)-getOrder(b.itemName))
+      menuItems.sort((a, b) => getOrder(a.itemName) - getOrder(b.itemName))
+      index = menuItems.findIndex(item => item.id === id)
+      menuScrollIndex.value=index
     }
   }
 }
@@ -109,9 +102,10 @@ const addCatalogItem = (id: string, title: string) => {
     const menuItems = MenuList.value[1].menuItems
     if (menuItems) {
       let index = menuItems.findIndex(item => getOrder(item.itemName) > getOrder(title))
-      if(index===-1) index=menuItems.length
+      if (index === -1) index = menuItems.length
       menuItems.forEach(item => (item.selected = false))
-      menuItems.splice(index,0,createCatalogItem(id, title, true))
+      menuItems.splice(index, 0, createCatalogItem(id, title, true));
+      menuScrollIndex.value=index
     }
   }
 }
@@ -137,6 +131,7 @@ const deleteCatalogItem = async (id: string) => {
       menuItems.forEach(item => (item.selected = false))
       item.selected = true
       store.updateChapter(item.id, item.itemName, content)
+      window.scrollTo(0, 0)
       await modal.value?.changeContentWordsCount()
     }
   }
@@ -150,6 +145,7 @@ const newChapter = async (name: string) => {
     setLoading(false)
     addCatalogItem(chapterId, name)
     store.updateChapter(chapterId, name, '')
+    window.scrollTo(0, 0)
     await modal.value?.changeContentWordsCount()
   } catch (error) {
     setLoading(false)
