@@ -59,6 +59,10 @@ const isShowItems = ref(false)
 const expand = throttle(() => {
   if (props.menuItems) {
     isShowItems.value = !isShowItems.value
+    nextTick().then(()=>{
+      const index = props.menuItems!.findIndex((menu) => menu.selected === true)
+      menuScrollTo(index)
+    })
   }
 }, props.duration * 1000)
 

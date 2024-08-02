@@ -15,7 +15,7 @@
         <span text="right">{{ saveInfo }}</span>
       </div>
       <div min-h="[68vh]" w-full inline-block outline-none :contenteditable="contentEditable" text="base"
-        ref="contentEditor" @input="saveContentDebounce($event.target, true); changeContentWordsCount()" @paste="handlePaste">
+        ref="contentEditor" @input="saveContentDebounce($event.target as HTMLDivElement, true); changeContentWordsCount()" @paste="handlePaste">
         {{ store.content }}
       </div>
 
@@ -71,7 +71,7 @@ const handlePaste = (e: ClipboardEvent) => {
   range.insertNode(pasteTxt)
   // 将焦点移动到复制文本结尾
   range.collapse(false)
-  saveContentDebounce(e.target, true)
+  saveContentDebounce(e.target as HTMLDivElement, true)
   changeContentWordsCount()
 }
 async function saveContent(contentEditor: HTMLDivElement, isAutoSave: boolean) {
@@ -99,7 +99,7 @@ const changeContentWordsCount = async () => {
   await nextTick()
   contentWordsCount.value = countWords(contentEditor.value?.innerText as string)
 }
-const { fnDebounced: saveContentDebounce, clearTime: preventAutoSave } = debounce(saveContent, 5000)
+const { fnDebounced: saveContentDebounce, clearTime: preventAutoSave } = debounce(saveContent, 2000)
 const clickExceptInput = (e: Event) => {
   if (titleEditable.value && e.target != titleInput.value) {
     setUnTitleEditable()
