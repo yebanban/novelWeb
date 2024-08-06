@@ -1,9 +1,6 @@
 <template>
   <el-dialog :modelValue="modelValue" @update:modelValue="(newValue: boolean) => emit('update:modelValue', newValue)"
-    destroy-on-close
-    @open="addEnterEventListener"
-    :before-close=clearInput
-    :title="title" width="50%" draggable>
+    destroy-on-close @open="addEnterEventListener" :before-close=clearInput :title="title" width="50%" draggable>
     <el-input v-model="input" :placeholder="placeholder" />
     <template #footer>
       <span class="dialog-footer">
@@ -30,25 +27,24 @@ const input = ref('')
 const enter = () => {
   emit('clickEnter', input.value)
   emit('update:modelValue', false)
+  window.removeEventListener('keydown', keydownEnter)
   input.value = ''
 }
 const keydownEnter = (e: KeyboardEvent) => {
-  console.log(e)
   if (/^\s*$/.test(input.value)) return
   var e = e || window.event
   //获取发生事件的元素，兼容IE和DOM
   var key = e.code
   if (key == 'NumpadEnter' || key == 'Enter') {
     enter()
-    window.removeEventListener('keydown',keydownEnter)
   }
 }
 const addEnterEventListener = () => {
-  window.addEventListener('keydown',keydownEnter)
+  window.addEventListener('keydown', keydownEnter)
 }
 const clearInput = () => {
   input.value = ''
-  window.removeEventListener('keydown',keydownEnter)
+  window.removeEventListener('keydown', keydownEnter)
   emit('update:modelValue', false)
 }
 </script>

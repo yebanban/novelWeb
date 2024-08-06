@@ -31,15 +31,14 @@ const emit = defineEmits<{
 const enter = () => {
   emit('clickEnter')
   emit('update:modelValue', false)
+  removeEnterEventListener()
 }
 const keydownEnter = (e: KeyboardEvent) => {
-  console.log(1)
   var e = e || window.event
   //获取发生事件的元素，兼容IE和DOM
   var key = e.code
   if (key == 'NumpadEnter' || key == 'Enter') {
     enter()
-    removeEnterEventListener()
   }
 }
 const addEnterEventListener = () => {
