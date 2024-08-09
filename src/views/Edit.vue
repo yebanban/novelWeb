@@ -18,7 +18,7 @@ import { removeFLSpaces, getOrder } from '../common/utils';
 import { useCurrentArticle } from '../store/currentArticle'
 import MyArticle from '../components/MyArticle.vue';
 import MyAside from '../components/MyAside.vue';
-const modal = ref<InstanceType<typeof MyArticle>&{changeContentWordsCount: ()=>Promise<void>} | null>(null)
+const modal = ref<InstanceType<typeof MyArticle> & { changeContentWordsCount: () => Promise<void>, updateContentEditor: (str: string) => void } | null>(null)
 const menuScrollIndex = ref(0)
 const w = ref('0')
 const route = useRoute()
@@ -95,7 +95,7 @@ const updateCatalogItemTitle = (id: string, title: string) => {
       menuItems[index].itemName = title
       menuItems.sort((a, b) => getOrder(a.itemName) - getOrder(b.itemName))
       index = menuItems.findIndex(item => item.id === id)
-      menuScrollIndex.value=index
+      menuScrollIndex.value = index
     }
   }
 }
@@ -107,7 +107,7 @@ const addCatalogItem = (id: string, title: string) => {
       if (index === -1) index = menuItems.length
       menuItems.forEach(item => (item.selected = false))
       menuItems.splice(index, 0, createCatalogItem(id, title, true));
-      menuScrollIndex.value=index
+      menuScrollIndex.value = index
     }
   }
 }
@@ -149,7 +149,7 @@ const newChapter = async (name: string) => {
     setLoading(false)
     addCatalogItem(chapterId, name)
     store.updateChapter(chapterId, name, '')
-    
+
     window.scrollTo(0, 0)
     await modal.value?.changeContentWordsCount()
     modal.value?.updateContentEditor('')
