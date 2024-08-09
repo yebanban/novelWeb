@@ -16,7 +16,7 @@
       </div>
       <div min-h="[68vh]" w-full inline-block outline-none :contenteditable="contentEditable" text="base"
         ref="contentEditor" @input="saveContentDebounce($event.target as HTMLDivElement, true); changeContentWordsCount()" @paste="handlePaste">
-        {{ store.content }}
+        {{ content }}
       </div>
 
     </div>
@@ -38,7 +38,8 @@ const titleEditable = ref(false)
 const contentEditable = ref(false)
 const titleInput = ref<HTMLInputElement | null>(null)
 const contentEditor = ref<HTMLDivElement | null>(null)
-
+const content = ref('')
+content.value=store.content
 const contentWordsCount = ref(0)
 const setTitleEditable = () => {
   titleEdited.value = store.title
@@ -108,9 +109,16 @@ const clickExceptInput = (e: Event) => {
     e.stopPropagation()
   }
 }
+const updateContentEditor = (str: string) => {
+  content.value = str
+  contentEditor.value!.innerHTML=str
+  changeContentWordsCount()
+}
+
 defineExpose({
   changeContentWordsCount,
-  contentEditor
+  contentEditor,
+  updateContentEditor
 })
 onMounted(() => {
   window.addEventListener('click', clickExceptInput, true)

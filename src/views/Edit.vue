@@ -44,6 +44,7 @@ const createCatalogItem = (id: string, title: string, selected: boolean) => {
       try {
         let content = (await chapterApi.getChapterContent({ id: this.id })).result.content
         store.updateChapter(this.id, this.itemName, content)
+        modal.value?.updateContentEditor(content)
         window.scrollTo(0, 0)
         await modal.value?.changeContentWordsCount()
       } catch (error) {
@@ -60,6 +61,7 @@ try {
   if (chapters.value.length > 0) {
     let content = (await chapterApi.getChapterContent({ id: chapters.value[0].id })).result.content
     store.updateChapter(chapters.value[0].id, chapters.value[0].title, content)
+    modal.value?.updateContentEditor(content)
   }
   setLoading(false)
   MenuList.value = [
@@ -120,6 +122,7 @@ const deleteCatalogItem = async (id: string) => {
       menuItems.splice(index, 1)
       if (menuItems.length === 0) {
         store.updateChapter('', '', '')
+        modal.value?.updateContentEditor('')
         return
       } else if (index === menuItems.length) {
         index--
@@ -131,6 +134,7 @@ const deleteCatalogItem = async (id: string) => {
       menuItems.forEach(item => (item.selected = false))
       item.selected = true
       store.updateChapter(item.id, item.itemName, content)
+      modal.value?.updateContentEditor(content)
       window.scrollTo(0, 0)
       await modal.value?.changeContentWordsCount()
     }
@@ -145,8 +149,10 @@ const newChapter = async (name: string) => {
     setLoading(false)
     addCatalogItem(chapterId, name)
     store.updateChapter(chapterId, name, '')
+    
     window.scrollTo(0, 0)
     await modal.value?.changeContentWordsCount()
+    modal.value?.updateContentEditor('')
   } catch (error) {
     setLoading(false)
     alert(error)
