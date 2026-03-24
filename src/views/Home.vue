@@ -59,11 +59,13 @@ document.title = '夜半小说网'
 try {
   setLoading(true)
   books.value = (await bookApi.getAllBook()).result.books
+  console.log(books.value)
   setLoading(false)
 } catch (error) {
   setLoading(false)
   alert(error)
 }
+console.log('home')
 const openInputDialog = () => {
   dialogVisible.value = true
 }

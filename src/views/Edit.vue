@@ -69,7 +69,7 @@ try {
       name: '主页',
       logo: 'i-ph:house',
       clickMe: () => {
-        router.push('/home')
+        router.back()
       },
     },
     {

@@ -1,5 +1,5 @@
 import Axios from "./axios"
-export const http=new Axios({
-    baseURL:'http://127.0.0.1:7001/',
-    timeout:10000 
+export const http = new Axios({
+    baseURL: 'http://8.148.144.132/',
+    timeout: 10000
 })

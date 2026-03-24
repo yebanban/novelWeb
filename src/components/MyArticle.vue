@@ -44,6 +44,7 @@ const contentWordsCount = ref(0)
 const setTitleEditable = () => {
   titleEdited.value = store.title
   titleEditable.value = true
+  window.addEventListener('click', clickExceptInput, true)
 }
 const setUnTitleEditable = () => {
   titleEditable.value = false
@@ -58,6 +59,7 @@ const changeContentEditable = async () => {
 }
 const handlePaste = (e: ClipboardEvent) => {
   e.preventDefault()
+  if(!contentEditable.value) return
   let txt = ''
   let range :Range|null = null
   // 获取复制的文本
@@ -107,6 +109,7 @@ const clickExceptInput = (e: Event) => {
     titleEdited.value = removeFLSpaces(titleEdited.value)
     saveTitle(titleEdited.value)
     e.stopPropagation()
+    window.removeEventListener('click', clickExceptInput)
   }
 }
 const updateContentEditor = (str: string) => {
@@ -121,7 +124,7 @@ defineExpose({
   updateContentEditor
 })
 onMounted(() => {
-  window.addEventListener('click', clickExceptInput, true)
+  
   contentWordsCount.value = countWords(contentEditor.value?.innerText as string)
   /* countTimer = setInterval(() => {
     contentWordsCount.value = countWords(contentEditor.value?.innerText as string)
@@ -129,7 +132,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  window.removeEventListener('click', clickExceptInput)
+  
   //clearInterval(countTimer as number)
 })
 </script>

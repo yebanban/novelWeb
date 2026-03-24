@@ -1,3 +1,10 @@
+/*
+ * @Description: 
+ * @Author: yebanban
+ * @Date: 2022-04-13 09:49:58
+ * @LastEditTime: 2025-07-03 17:01:53
+ * @LastEditors: yebanban
+ */
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
