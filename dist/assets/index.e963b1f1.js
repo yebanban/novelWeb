@@ -1648,24 +1648,6 @@ function renderComponentRoot(instance) {
   setCurrentRenderingInstance(prev);
   return result;
 }
-function filterSingleRoot(children) {
-  let singleRoot;
-  for (let i2 = 0; i2 < children.length; i2++) {
-    const child = children[i2];
-    if (isVNode(child)) {
-      if (child.type !== Comment || child.children === "v-if") {
-        if (singleRoot) {
-          return;
-        } else {
-          singleRoot = child;
-        }
-      }
-    } else {
-      return;
-    }
-  }
-  return singleRoot;
-}
 const getFunctionalFallthrough = (attrs) => {
   let res;
   for (const key in attrs) {
@@ -1748,285 +1730,6 @@ function updateHOCHostEl({ vnode, parent }, el) {
   }
 }
 const isSuspense = (type4) => type4.__isSuspense;
-const SuspenseImpl = {
-  name: "Suspense",
-  __isSuspense: true,
-  process(n1, n2, container, anchor, parentComponent, parentSuspense, isSVG, slotScopeIds, optimized, rendererInternals) {
-    if (n1 == null) {
-      mountSuspense(n2, container, anchor, parentComponent, parentSuspense, isSVG, slotScopeIds, optimized, rendererInternals);
-    } else {
-      patchSuspense(n1, n2, container, anchor, parentComponent, isSVG, slotScopeIds, optimized, rendererInternals);
-    }
-  },
-  hydrate: hydrateSuspense,
-  create: createSuspenseBoundary,
-  normalize: normalizeSuspenseChildren
-};
-const Suspense = SuspenseImpl;
-function triggerEvent$1(vnode, name) {
-  const eventListener = vnode.props && vnode.props[name];
-  if (isFunction$2(eventListener)) {
-    eventListener();
-  }
-}
-function mountSuspense(vnode, container, anchor, parentComponent, parentSuspense, isSVG, slotScopeIds, optimized, rendererInternals) {
-  const { p: patch, o: { createElement } } = rendererInternals;
-  const hiddenContainer = createElement("div");
-  const suspense = vnode.suspense = createSuspenseBoundary(vnode, parentSuspense, parentComponent, container, hiddenContainer, anchor, isSVG, slotScopeIds, optimized, rendererInternals);
-  patch(null, suspense.pendingBranch = vnode.ssContent, hiddenContainer, null, parentComponent, suspense, isSVG, slotScopeIds);
-  if (suspense.deps > 0) {
-    triggerEvent$1(vnode, "onPending");
-    triggerEvent$1(vnode, "onFallback");
-    patch(null, vnode.ssFallback, container, anchor, parentComponent, null, isSVG, slotScopeIds);
-    setActiveBranch(suspense, vnode.ssFallback);
-  } else {
-    suspense.resolve();
-  }
-}
-function patchSuspense(n1, n2, container, anchor, parentComponent, isSVG, slotScopeIds, optimized, { p: patch, um: unmount, o: { createElement } }) {
-  const suspense = n2.suspense = n1.suspense;
-  suspense.vnode = n2;
-  n2.el = n1.el;
-  const newBranch = n2.ssContent;
-  const newFallback = n2.ssFallback;
-  const { activeBranch, pendingBranch, isInFallback, isHydrating } = suspense;
-  if (pendingBranch) {
-    suspense.pendingBranch = newBranch;
-    if (isSameVNodeType(newBranch, pendingBranch)) {
-      patch(pendingBranch, newBranch, suspense.hiddenContainer, null, parentComponent, suspense, isSVG, slotScopeIds, optimized);
-      if (suspense.deps <= 0) {
-        suspense.resolve();
-      } else if (isInFallback) {
-        patch(activeBranch, newFallback, container, anchor, parentComponent, null, isSVG, slotScopeIds, optimized);
-        setActiveBranch(suspense, newFallback);
-      }
-    } else {
-      suspense.pendingId++;
-      if (isHydrating) {
-        suspense.isHydrating = false;
-        suspense.activeBranch = pendingBranch;
-      } else {
-        unmount(pendingBranch, parentComponent, suspense);
-      }
-      suspense.deps = 0;
-      suspense.effects.length = 0;
-      suspense.hiddenContainer = createElement("div");
-      if (isInFallback) {
-        patch(null, newBranch, suspense.hiddenContainer, null, parentComponent, suspense, isSVG, slotScopeIds, optimized);
-        if (suspense.deps <= 0) {
-          suspense.resolve();
-        } else {
-          patch(activeBranch, newFallback, container, anchor, parentComponent, null, isSVG, slotScopeIds, optimized);
-          setActiveBranch(suspense, newFallback);
-        }
-      } else if (activeBranch && isSameVNodeType(newBranch, activeBranch)) {
-        patch(activeBranch, newBranch, container, anchor, parentComponent, suspense, isSVG, slotScopeIds, optimized);
-        suspense.resolve(true);
-      } else {
-        patch(null, newBranch, suspense.hiddenContainer, null, parentComponent, suspense, isSVG, slotScopeIds, optimized);
-        if (suspense.deps <= 0) {
-          suspense.resolve();
-        }
-      }
-    }
-  } else {
-    if (activeBranch && isSameVNodeType(newBranch, activeBranch)) {
-      patch(activeBranch, newBranch, container, anchor, parentComponent, suspense, isSVG, slotScopeIds, optimized);
-      setActiveBranch(suspense, newBranch);
-    } else {
-      triggerEvent$1(n2, "onPending");
-      suspense.pendingBranch = newBranch;
-      suspense.pendingId++;
-      patch(null, newBranch, suspense.hiddenContainer, null, parentComponent, suspense, isSVG, slotScopeIds, optimized);
-      if (suspense.deps <= 0) {
-        suspense.resolve();
-      } else {
-        const { timeout, pendingId } = suspense;
-        if (timeout > 0) {
-          setTimeout(() => {
-            if (suspense.pendingId === pendingId) {
-              suspense.fallback(newFallback);
-            }
-          }, timeout);
-        } else if (timeout === 0) {
-          suspense.fallback(newFallback);
-        }
-      }
-    }
-  }
-}
-function createSuspenseBoundary(vnode, parent, parentComponent, container, hiddenContainer, anchor, isSVG, slotScopeIds, optimized, rendererInternals, isHydrating = false) {
-  const { p: patch, m: move, um: unmount, n: next, o: { parentNode, remove: remove2 } } = rendererInternals;
-  const timeout = toNumber$1(vnode.props && vnode.props.timeout);
-  const suspense = {
-    vnode,
-    parent,
-    parentComponent,
-    isSVG,
-    container,
-    hiddenContainer,
-    anchor,
-    deps: 0,
-    pendingId: 0,
-    timeout: typeof timeout === "number" ? timeout : -1,
-    activeBranch: null,
-    pendingBranch: null,
-    isInFallback: true,
-    isHydrating,
-    isUnmounted: false,
-    effects: [],
-    resolve(resume = false) {
-      const { vnode: vnode2, activeBranch, pendingBranch, pendingId, effects, parentComponent: parentComponent2, container: container2 } = suspense;
-      if (suspense.isHydrating) {
-        suspense.isHydrating = false;
-      } else if (!resume) {
-        const delayEnter = activeBranch && pendingBranch.transition && pendingBranch.transition.mode === "out-in";
-        if (delayEnter) {
-          activeBranch.transition.afterLeave = () => {
-            if (pendingId === suspense.pendingId) {
-              move(pendingBranch, container2, anchor2, 0);
-            }
-          };
-        }
-        let { anchor: anchor2 } = suspense;
-        if (activeBranch) {
-          anchor2 = next(activeBranch);
-          unmount(activeBranch, parentComponent2, suspense, true);
-        }
-        if (!delayEnter) {
-          move(pendingBranch, container2, anchor2, 0);
-        }
-      }
-      setActiveBranch(suspense, pendingBranch);
-      suspense.pendingBranch = null;
-      suspense.isInFallback = false;
-      let parent2 = suspense.parent;
-      let hasUnresolvedAncestor = false;
-      while (parent2) {
-        if (parent2.pendingBranch) {
-          parent2.effects.push(...effects);
-          hasUnresolvedAncestor = true;
-          break;
-        }
-        parent2 = parent2.parent;
-      }
-      if (!hasUnresolvedAncestor) {
-        queuePostFlushCb(effects);
-      }
-      suspense.effects = [];
-      triggerEvent$1(vnode2, "onResolve");
-    },
-    fallback(fallbackVNode) {
-      if (!suspense.pendingBranch) {
-        return;
-      }
-      const { vnode: vnode2, activeBranch, parentComponent: parentComponent2, container: container2, isSVG: isSVG2 } = suspense;
-      triggerEvent$1(vnode2, "onFallback");
-      const anchor2 = next(activeBranch);
-      const mountFallback = () => {
-        if (!suspense.isInFallback) {
-          return;
-        }
-        patch(null, fallbackVNode, container2, anchor2, parentComponent2, null, isSVG2, slotScopeIds, optimized);
-        setActiveBranch(suspense, fallbackVNode);
-      };
-      const delayEnter = fallbackVNode.transition && fallbackVNode.transition.mode === "out-in";
-      if (delayEnter) {
-        activeBranch.transition.afterLeave = mountFallback;
-      }
-      suspense.isInFallback = true;
-      unmount(activeBranch, parentComponent2, null, true);
-      if (!delayEnter) {
-        mountFallback();
-      }
-    },
-    move(container2, anchor2, type4) {
-      suspense.activeBranch && move(suspense.activeBranch, container2, anchor2, type4);
-      suspense.container = container2;
-    },
-    next() {
-      return suspense.activeBranch && next(suspense.activeBranch);
-    },
-    registerDep(instance, setupRenderEffect) {
-      const isInPendingSuspense = !!suspense.pendingBranch;
-      if (isInPendingSuspense) {
-        suspense.deps++;
-      }
-      const hydratedEl = instance.vnode.el;
-      instance.asyncDep.catch((err) => {
-        handleError(err, instance, 0);
-      }).then((asyncSetupResult) => {
-        if (instance.isUnmounted || suspense.isUnmounted || suspense.pendingId !== instance.suspenseId) {
-          return;
-        }
-        instance.asyncResolved = true;
-        const { vnode: vnode2 } = instance;
-        handleSetupResult(instance, asyncSetupResult, false);
-        if (hydratedEl) {
-          vnode2.el = hydratedEl;
-        }
-        const placeholder = !hydratedEl && instance.subTree.el;
-        setupRenderEffect(instance, vnode2, parentNode(hydratedEl || instance.subTree.el), hydratedEl ? null : next(instance.subTree), suspense, isSVG, optimized);
-        if (placeholder) {
-          remove2(placeholder);
-        }
-        updateHOCHostEl(instance, vnode2.el);
-        if (isInPendingSuspense && --suspense.deps === 0) {
-          suspense.resolve();
-        }
-      });
-    },
-    unmount(parentSuspense, doRemove) {
-      suspense.isUnmounted = true;
-      if (suspense.activeBranch) {
-        unmount(suspense.activeBranch, parentComponent, parentSuspense, doRemove);
-      }
-      if (suspense.pendingBranch) {
-        unmount(suspense.pendingBranch, parentComponent, parentSuspense, doRemove);
-      }
-    }
-  };
-  return suspense;
-}
-function hydrateSuspense(node, vnode, parentComponent, parentSuspense, isSVG, slotScopeIds, optimized, rendererInternals, hydrateNode) {
-  const suspense = vnode.suspense = createSuspenseBoundary(vnode, parentSuspense, parentComponent, node.parentNode, document.createElement("div"), null, isSVG, slotScopeIds, optimized, rendererInternals, true);
-  const result = hydrateNode(node, suspense.pendingBranch = vnode.ssContent, parentComponent, suspense, slotScopeIds, optimized);
-  if (suspense.deps === 0) {
-    suspense.resolve();
-  }
-  return result;
-}
-function normalizeSuspenseChildren(vnode) {
-  const { shapeFlag, children } = vnode;
-  const isSlotChildren = shapeFlag & 32;
-  vnode.ssContent = normalizeSuspenseSlot(isSlotChildren ? children.default : children);
-  vnode.ssFallback = isSlotChildren ? normalizeSuspenseSlot(children.fallback) : createVNode(Comment);
-}
-function normalizeSuspenseSlot(s2) {
-  let block;
-  if (isFunction$2(s2)) {
-    const trackBlock = isBlockTreeEnabled && s2._c;
-    if (trackBlock) {
-      s2._d = false;
-      openBlock();
-    }
-    s2 = s2();
-    if (trackBlock) {
-      s2._d = true;
-      block = currentBlock;
-      closeBlock();
-    }
-  }
-  if (isArray$3(s2)) {
-    const singleChild = filterSingleRoot(s2);
-    s2 = singleChild;
-  }
-  s2 = normalizeVNode(s2);
-  if (block && !s2.dynamicChildren) {
-    s2.dynamicChildren = block.filter((c2) => c2 !== s2);
-  }
-  return s2;
-}
 function queueEffectWithSuspense(fn2, suspense) {
   if (suspense && suspense.pendingBranch) {
     if (isArray$3(fn2)) {
@@ -2036,15 +1739,6 @@ function queueEffectWithSuspense(fn2, suspense) {
     }
   } else {
     queuePostFlushCb(fn2);
-  }
-}
-function setActiveBranch(suspense, branch) {
-  suspense.activeBranch = branch;
-  const { vnode, parentComponent } = suspense;
-  const el = vnode.el = branch.el;
-  if (parentComponent && parentComponent.subTree === vnode) {
-    parentComponent.vnode.el = el;
-    updateHOCHostEl(parentComponent, el);
   }
 }
 function provide(key, value) {
@@ -5141,18 +4835,6 @@ function getContext() {
   const i2 = getCurrentInstance();
   return i2.setupContext || (i2.setupContext = createSetupContext(i2));
 }
-function withAsyncContext(getAwaitable) {
-  const ctx = getCurrentInstance();
-  let awaitable = getAwaitable();
-  unsetCurrentInstance();
-  if (isPromise(awaitable)) {
-    awaitable = awaitable.catch((e2) => {
-      setCurrentInstance(ctx);
-      throw e2;
-    });
-  }
-  return [awaitable, () => setCurrentInstance(ctx)];
-}
 function h$2(type4, propsOrChildren, children) {
   const l2 = arguments.length;
   if (l2 === 2) {
@@ -6174,12 +5856,7 @@ const _sfc_main$2W = /* @__PURE__ */ defineComponent({
       const _component_router_view = resolveComponent("router-view");
       return openBlock(), createElementBlock(Fragment, null, [
         loading2.value ? (openBlock(), createBlock(_component_Loading, { key: 0 })) : createCommentVNode("", true),
-        (openBlock(), createBlock(Suspense, null, {
-          default: withCtx(() => [
-            createVNode(_component_router_view)
-          ]),
-          _: 1
-        }))
+        createVNode(_component_router_view)
       ], 64);
     };
   }
@@ -6187,7 +5864,7 @@ const _sfc_main$2W = /* @__PURE__ */ defineComponent({
 var App = /* @__PURE__ */ _export_sfc$2(_sfc_main$2W, [["__file", "App.vue"]]);
 const scriptRel = "modulepreload";
 const seen = {};
-const base = "/novelWeb/";
+const base = "/";
 const __vitePreload = function preload(baseModule, deps) {
   if (!deps || deps.length === 0) {
     return baseModule();
@@ -9254,7 +8931,7 @@ class Axios {
   }
 }
 const http = new Axios({
-  baseURL: "http://8.148.144.132/",
+  baseURL: "http://127.0.0.1:7001/",
   timeout: 1e4
 });
 function login(data) {
@@ -9363,12 +9040,12 @@ const router = createRouter({
     {
       path: "/edit/:id/:name",
       name: "edit",
-      component: () => __vitePreload(() => import("./Edit.51a90485.js"), true ? ["assets/Edit.51a90485.js","assets/Edit.94c8f6ef.css","assets/Dialog.8deda3db.js","assets/Dialog.09368181.css"] : void 0)
+      component: () => __vitePreload(() => import("./Edit.61333b71.js"), true ? ["assets/Edit.61333b71.js","assets/Edit.94c8f6ef.css","assets/Dialog.d9b12b95.js","assets/Dialog.09368181.css"] : void 0)
     },
     {
       path: "/home",
       name: "home",
-      component: () => __vitePreload(() => import("./Home.f234d701.js"), true ? ["assets/Home.f234d701.js","assets/Home.776898e2.css","assets/Dialog.8deda3db.js","assets/Dialog.09368181.css"] : void 0)
+      component: () => __vitePreload(() => import("./Home.9ab38ef8.js"), true ? ["assets/Home.9ab38ef8.js","assets/Home.5d4398b6.css","assets/Dialog.d9b12b95.js","assets/Dialog.09368181.css"] : void 0)
     }
   ]
 });
@@ -54487,4 +54164,4 @@ app.use(installer);
 app.use(router);
 setupPlugins(app);
 app.mount("#app");
-export { useRouter as A, withAsyncContext as B, provide as C, ElButton as D, ElInput as E, Fragment as F, ElDialog as G, onBeforeUnmount as H, withModifiers as I, Transition as T, _export_sfc$2 as _, createBaseVNode as a, defineStore as b, createElementBlock as c, defineComponent as d, onMounted as e, onUnmounted as f, vModelText as g, http as h, inject as i, nextTick as j, watch as k, createTextVNode as l, createVNode as m, normalizeClass as n, openBlock as o, withCtx as p, normalizeStyle as q, ref as r, renderList as s, toDisplayString as t, unref as u, vShow as v, withDirectives as w, createCommentVNode as x, createBlock as y, useRoute as z };
+export { useRouter as A, provide as B, ElButton as C, ElDialog as D, ElInput as E, Fragment as F, onBeforeUnmount as G, withModifiers as H, Transition as T, _export_sfc$2 as _, createBaseVNode as a, defineStore as b, createElementBlock as c, defineComponent as d, onMounted as e, onUnmounted as f, vModelText as g, http as h, inject as i, nextTick as j, watch as k, createTextVNode as l, createVNode as m, normalizeClass as n, openBlock as o, withCtx as p, normalizeStyle as q, ref as r, renderList as s, toDisplayString as t, unref as u, vShow as v, withDirectives as w, createCommentVNode as x, createBlock as y, useRoute as z };

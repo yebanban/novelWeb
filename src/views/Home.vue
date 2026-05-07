@@ -14,10 +14,6 @@
           hover="transition-300 shadow-light-500 shadow-xl -translate-y-1" @click="openBook(book)"
           @contextmenu.prevent.stop="showDeleteMenu($event, book.id)">
           <div shadow="sm blue-100" w-full rounded overflow-hidden>
-            <!-- <div v-if="book.Cover"></div>
-            <div v-else bg="gray-400/20" w='[10vw]' h-40 text-lg box-border p="x-3 y-1">
-              {{ book.name }}
-            </div> -->
             <div bg="gray-400/20" h-40 text-lg p="x-3 y-1">
               {{ book.name }}
             </div>
@@ -56,14 +52,19 @@ const menuTop = ref('')
 const menuLeft = ref('')
 document.title = '夜半小说网'
 
-try {
-  setLoading(true)
-  books.value = (await bookApi.getAllBook()).result.books
-  console.log(books.value)
-  setLoading(false)
-} catch (error) {
-  setLoading(false)
-  alert(error)
+// 原先在 <script setup> 顶层直接 await bookApi.getAllBook()，使组件成为
+// async 组件，必须由父级 <Suspense> 包裹。但 Suspense + router-view 在路由
+// 回退时存在 DOM 清理竞态。现将异步调用移入 onMounted，消除对 Suspense 的依赖。
+const initData = async () => {
+  try {
+    setLoading(true)
+    books.value = (await bookApi.getAllBook()).result.books
+    console.log(books.value)
+    setLoading(false)
+  } catch (error) {
+    setLoading(false)
+    alert(error)
+  }
 }
 console.log('home')
 const openInputDialog = () => {
@@ -80,7 +81,7 @@ const addBook = (book: BookInfo) => {
 }
 const updateBookItem = (book: BookInfo) => {
   const index = books.value?.findIndex(b => b.id === book.id) as number
-  (books.value as BookInfo[])[index].name = book.name
+  ;(books.value as BookInfo[])[index].name = book.name
 }
 const removeBook = (id: string) => {
   const index = books.value?.findIndex(book => book.id === id) as number
@@ -100,7 +101,6 @@ const updateBook = async (name: string) => {
 }
 const newBook = async (name: string) => {
   try {
-
     setLoading(true)
     name = removeFLSpaces(name)
     const bookId = (await bookApi.create({ name })).result.id
@@ -139,6 +139,7 @@ const openBook = (book: BookInfo) => {
 }
 const menus = ref([{ name: '修改名字', clickMe: openUpdateDialog }, { name: '删除本书', clickMe: openDeleteDialog }])
 onMounted(() => {
+  initData()
   window.addEventListener('click', hiddenDeleteMenu)
   window.addEventListener('contextmenu', hiddenDeleteMenu)
 })

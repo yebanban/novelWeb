@@ -54,38 +54,45 @@ const createCatalogItem = (id: string, title: string, selected: boolean) => {
     },
   }
 }
-try {
-  setLoading(true)
-  chapters.value = (await bookApi.getChapters({ id: novelId.value })).result.chapters
-  chapters.value.sort((a, b) => getOrder(a.title) - getOrder(b.title))
-  if (chapters.value.length > 0) {
-    let content = (await chapterApi.getChapterContent({ id: chapters.value[0].id })).result.content
-    store.updateChapter(chapters.value[0].id, chapters.value[0].title, content)
-    modal.value?.updateContentEditor(content)
-  }
-  setLoading(false)
-  MenuList.value = [
-    {
-      name: '主页',
-      logo: 'i-ph:house',
-      clickMe: () => {
-        router.back()
+// 原先在 <script setup> 顶层 await bookApi.getChapters()，组件依赖父级
+// <Suspense>。但 Suspense 在路由切换时与 MyAside/Menu 内的 <Transition>
+// 产生 parentNode 空指针竞态。现将异步逻辑移入 onMounted。
+const initData = async () => {
+  try {
+    setLoading(true)
+    chapters.value = (await bookApi.getChapters({ id: novelId.value })).result.chapters
+    chapters.value.sort((a, b) => getOrder(a.title) - getOrder(b.title))
+    if (chapters.value.length > 0) {
+      let content = (await chapterApi.getChapterContent({ id: chapters.value[0].id })).result.content
+      store.updateChapter(chapters.value[0].id, chapters.value[0].title, content)
+      modal.value?.updateContentEditor(content)
+    }
+    setLoading(false)
+    MenuList.value = [
+      {
+        name: '主页',
+        logo: 'i-ph:house',
+        // 原先用 router.back()。back() 依赖浏览器历史栈的 popstate 事件，
+        // 异步触发与 Suspense 交互时加剧 DOM 竞态。改用 push 确定性导航。
+        clickMe: () => {
+          router.push('/home')
+        },
       },
-    },
-    {
-      name: '目录',
-      logo: 'i-mdi:format-align-right',
-      menuItems: chapters.value.map((chapter, index) =>
-        createCatalogItem(chapter.id, chapter.title, index === 0 ? true : false)
-      ),
-    },
-    { name: '设置', logo: 'i-ph:nut-bold' },
-    { name: '关于', logo: 'i-mdi:information-outline' },
-  ]
-} catch (error) {
-  setLoading(false)
-  alert(error)
-  router.push('/home')
+      {
+        name: '目录',
+        logo: 'i-mdi:format-align-right',
+        menuItems: chapters.value.map((chapter, index) =>
+          createCatalogItem(chapter.id, chapter.title, index === 0 ? true : false)
+        ),
+      },
+      { name: '设置', logo: 'i-ph:nut-bold' },
+      { name: '关于', logo: 'i-mdi:information-outline' },
+    ]
+  } catch (error) {
+    setLoading(false)
+    alert(error)
+    router.push('/home')
+  }
 }
 const updateCatalogItemTitle = (id: string, title: string) => {
   if (MenuList.value) {
@@ -167,6 +174,9 @@ const addWidth = () => {
 const reduceWidth = () => {
   w.value = '0'
 }
+onMounted(() => {
+  initData()
+})
 </script>
 
 <style lang="scss" scoped></style>

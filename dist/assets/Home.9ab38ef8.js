@@ -1,5 +1,5 @@
-import { b as bookApi, r as removeFLSpaces, a as __unplugin_components_0, _ as __unplugin_components_1, e as getScroll } from "./Dialog.8deda3db.js";
-import { _ as _export_sfc, d as defineComponent, A as useRouter, r as ref, i as inject, B as withAsyncContext, e as onMounted, H as onBeforeUnmount, o as openBlock, c as createElementBlock, a as createBaseVNode, F as Fragment, s as renderList, m as createVNode, n as normalizeClass, u as unref, q as normalizeStyle, x as createCommentVNode, I as withModifiers, t as toDisplayString } from "./index.befb3f10.js";
+import { b as bookApi, r as removeFLSpaces, a as __unplugin_components_0, _ as __unplugin_components_1, e as getScroll } from "./Dialog.d9b12b95.js";
+import { _ as _export_sfc, d as defineComponent, A as useRouter, r as ref, i as inject, e as onMounted, G as onBeforeUnmount, o as openBlock, c as createElementBlock, a as createBaseVNode, F as Fragment, s as renderList, m as createVNode, n as normalizeClass, u as unref, q as normalizeStyle, x as createCommentVNode, H as withModifiers, t as toDisplayString } from "./index.e963b1f1.js";
 const _hoisted_1 = /* @__PURE__ */ createBaseVNode("h2", null, "\u4E66\u67B6", -1);
 const _hoisted_2 = /* @__PURE__ */ createBaseVNode("div", {
   "btn-logo": "",
@@ -36,8 +36,7 @@ const _hoisted_7 = {
 };
 const _hoisted_8 = ["onClick"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
-  async setup(__props) {
-    let __temp, __restore;
+  setup(__props) {
     const router = useRouter();
     const books = ref();
     const setLoading = inject("setLoading");
@@ -50,15 +49,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const menuTop = ref("");
     const menuLeft = ref("");
     document.title = "\u591C\u534A\u5C0F\u8BF4\u7F51";
-    try {
-      setLoading(true);
-      books.value = ([__temp, __restore] = withAsyncContext(() => bookApi.getAllBook()), __temp = await __temp, __restore(), __temp).result.books;
-      console.log(books.value);
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      alert(error);
-    }
+    const initData = async () => {
+      try {
+        setLoading(true);
+        books.value = (await bookApi.getAllBook()).result.books;
+        console.log(books.value);
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        alert(error);
+      }
+    };
     console.log("home");
     const openInputDialog = () => {
       dialogVisible.value = true;
@@ -136,6 +137,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const menus = ref([{ name: "\u4FEE\u6539\u540D\u5B57", clickMe: openUpdateDialog }, { name: "\u5220\u9664\u672C\u4E66", clickMe: openDeleteDialog }]);
     onMounted(() => {
+      initData();
       window.addEventListener("click", hiddenDeleteMenu);
       window.addEventListener("contextmenu", hiddenDeleteMenu);
     });
