@@ -5864,7 +5864,7 @@ const _sfc_main$2W = /* @__PURE__ */ defineComponent({
 var App = /* @__PURE__ */ _export_sfc$2(_sfc_main$2W, [["__file", "App.vue"]]);
 const scriptRel = "modulepreload";
 const seen = {};
-const base = "/";
+const base = "/novelWeb/";
 const __vitePreload = function preload(baseModule, deps) {
   if (!deps || deps.length === 0) {
     return baseModule();
@@ -9040,12 +9040,12 @@ const router = createRouter({
     {
       path: "/edit/:id/:name",
       name: "edit",
-      component: () => __vitePreload(() => import("./Edit.61333b71.js"), true ? ["assets/Edit.61333b71.js","assets/Edit.94c8f6ef.css","assets/Dialog.d9b12b95.js","assets/Dialog.09368181.css"] : void 0)
+      component: () => __vitePreload(() => import("./Edit.b385e895.js"), true ? ["assets/Edit.b385e895.js","assets/Edit.94c8f6ef.css","assets/Dialog.73ac8b55.js","assets/Dialog.09368181.css"] : void 0)
     },
     {
       path: "/home",
       name: "home",
-      component: () => __vitePreload(() => import("./Home.9ab38ef8.js"), true ? ["assets/Home.9ab38ef8.js","assets/Home.5d4398b6.css","assets/Dialog.d9b12b95.js","assets/Dialog.09368181.css"] : void 0)
+      component: () => __vitePreload(() => import("./Home.383250d3.js"), true ? ["assets/Home.383250d3.js","assets/Home.5d4398b6.css","assets/Dialog.73ac8b55.js","assets/Dialog.09368181.css"] : void 0)
     }
   ]
 });
