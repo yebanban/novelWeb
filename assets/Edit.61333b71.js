@@ -1,5 +1,5 @@
-import { c as countWords, d as debounce, r as removeFLSpaces, t as throttle, _ as __unplugin_components_1, b as bookApi, g as getOrder, a as __unplugin_components_0$1 } from "./Dialog.8deda3db.js";
-import { _ as _export_sfc, d as defineComponent, i as inject, o as openBlock, c as createElementBlock, a as createBaseVNode, u as unref, h as http, b as defineStore, r as ref, e as onMounted, f as onUnmounted, w as withDirectives, v as vShow, g as vModelText, t as toDisplayString, n as normalizeClass, j as nextTick, k as watch, l as createTextVNode, m as createVNode, p as withCtx, q as normalizeStyle, F as Fragment, s as renderList, x as createCommentVNode, T as Transition, y as createBlock, z as useRoute, A as useRouter, B as withAsyncContext, C as provide } from "./index.befb3f10.js";
+import { c as countWords, d as debounce, r as removeFLSpaces, t as throttle, _ as __unplugin_components_1, b as bookApi, g as getOrder, a as __unplugin_components_0$1 } from "./Dialog.d9b12b95.js";
+import { _ as _export_sfc, d as defineComponent, i as inject, o as openBlock, c as createElementBlock, a as createBaseVNode, u as unref, h as http, b as defineStore, r as ref, e as onMounted, f as onUnmounted, w as withDirectives, v as vShow, g as vModelText, t as toDisplayString, n as normalizeClass, j as nextTick, k as watch, l as createTextVNode, m as createVNode, p as withCtx, q as normalizeStyle, F as Fragment, s as renderList, x as createCommentVNode, T as Transition, y as createBlock, z as useRoute, A as useRouter, B as provide } from "./index.e963b1f1.js";
 const _hoisted_1$3 = /* @__PURE__ */ createBaseVNode("div", {
   border: "1 blue-100",
   rounded: "1/2",
@@ -534,9 +534,7 @@ const _sfc_main$1 = /* @__PURE__ */ defineComponent({
 });
 var MyAside = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["__scopeId", "data-v-0ca8fd82"], ["__file", "MyAside.vue"]]);
 const _sfc_main = /* @__PURE__ */ defineComponent({
-  async setup(__props) {
-    var _a;
-    let __temp, __restore;
+  setup(__props) {
     const modal = ref(null);
     const menuScrollIndex = ref(0);
     const w = ref("0");
@@ -558,14 +556,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         selected,
         canDelete: true,
         clickMe: async function() {
-          var _a2, _b;
+          var _a, _b;
           if (this.selected)
             return;
           setLoading(true);
           try {
             let content = (await chapterApi.getChapterContent({ id: this.id })).result.content;
             store.updateChapter(this.id, this.itemName, content);
-            (_a2 = modal.value) == null ? void 0 : _a2.updateContentEditor(content);
+            (_a = modal.value) == null ? void 0 : _a.updateContentEditor(content);
             window.scrollTo(0, 0);
             await ((_b = modal.value) == null ? void 0 : _b.changeContentWordsCount());
           } catch (error) {
@@ -575,37 +573,40 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }
       };
     };
-    try {
-      setLoading(true);
-      chapters.value = ([__temp, __restore] = withAsyncContext(() => bookApi.getChapters({ id: novelId.value })), __temp = await __temp, __restore(), __temp).result.chapters;
-      chapters.value.sort((a, b) => getOrder(a.title) - getOrder(b.title));
-      if (chapters.value.length > 0) {
-        let content = ([__temp, __restore] = withAsyncContext(() => chapterApi.getChapterContent({ id: chapters.value[0].id })), __temp = await __temp, __restore(), __temp).result.content;
-        store.updateChapter(chapters.value[0].id, chapters.value[0].title, content);
-        (_a = modal.value) == null ? void 0 : _a.updateContentEditor(content);
+    const initData = async () => {
+      var _a;
+      try {
+        setLoading(true);
+        chapters.value = (await bookApi.getChapters({ id: novelId.value })).result.chapters;
+        chapters.value.sort((a, b) => getOrder(a.title) - getOrder(b.title));
+        if (chapters.value.length > 0) {
+          let content = (await chapterApi.getChapterContent({ id: chapters.value[0].id })).result.content;
+          store.updateChapter(chapters.value[0].id, chapters.value[0].title, content);
+          (_a = modal.value) == null ? void 0 : _a.updateContentEditor(content);
+        }
+        setLoading(false);
+        MenuList.value = [
+          {
+            name: "\u4E3B\u9875",
+            logo: "i-ph:house",
+            clickMe: () => {
+              router.push("/home");
+            }
+          },
+          {
+            name: "\u76EE\u5F55",
+            logo: "i-mdi:format-align-right",
+            menuItems: chapters.value.map((chapter, index) => createCatalogItem(chapter.id, chapter.title, index === 0 ? true : false))
+          },
+          { name: "\u8BBE\u7F6E", logo: "i-ph:nut-bold" },
+          { name: "\u5173\u4E8E", logo: "i-mdi:information-outline" }
+        ];
+      } catch (error) {
+        setLoading(false);
+        alert(error);
+        router.push("/home");
       }
-      setLoading(false);
-      MenuList.value = [
-        {
-          name: "\u4E3B\u9875",
-          logo: "i-ph:house",
-          clickMe: () => {
-            router.back();
-          }
-        },
-        {
-          name: "\u76EE\u5F55",
-          logo: "i-mdi:format-align-right",
-          menuItems: chapters.value.map((chapter, index) => createCatalogItem(chapter.id, chapter.title, index === 0 ? true : false))
-        },
-        { name: "\u8BBE\u7F6E", logo: "i-ph:nut-bold" },
-        { name: "\u5173\u4E8E", logo: "i-mdi:information-outline" }
-      ];
-    } catch (error) {
-      setLoading(false);
-      alert(error);
-      router.push("/home");
-    }
+    };
     const updateCatalogItemTitle = (id, title) => {
       if (MenuList.value) {
         const menuItems = MenuList.value[1].menuItems;
@@ -635,7 +636,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       dialogVisible.value = true;
     };
     const deleteCatalogItem = async (id) => {
-      var _a2, _b, _c;
+      var _a, _b, _c;
       if (MenuList.value) {
         const menuItems = MenuList.value[1].menuItems;
         if (menuItems) {
@@ -643,7 +644,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           menuItems.splice(index, 1);
           if (menuItems.length === 0) {
             store.updateChapter("", "", "");
-            (_a2 = modal.value) == null ? void 0 : _a2.updateContentEditor("");
+            (_a = modal.value) == null ? void 0 : _a.updateContentEditor("");
             return;
           } else if (index === menuItems.length) {
             index--;
@@ -662,7 +663,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     };
     const newChapter = async (name) => {
-      var _a2, _b;
+      var _a, _b;
       try {
         setLoading(true);
         name = removeFLSpaces(name);
@@ -671,7 +672,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         addCatalogItem(chapterId, name);
         store.updateChapter(chapterId, name, "");
         window.scrollTo(0, 0);
-        await ((_a2 = modal.value) == null ? void 0 : _a2.changeContentWordsCount());
+        await ((_a = modal.value) == null ? void 0 : _a.changeContentWordsCount());
         (_b = modal.value) == null ? void 0 : _b.updateContentEditor("");
       } catch (error) {
         setLoading(false);
@@ -686,8 +687,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const reduceWidth = () => {
       w.value = "0";
     };
+    onMounted(() => {
+      initData();
+    });
     return (_ctx, _cache) => {
-      var _a2, _b;
+      var _a, _b;
       const _component_blank_article = __unplugin_components_0;
       const _component_input_dialog = __unplugin_components_0$1;
       return openBlock(), createElementBlock("div", {
@@ -710,7 +714,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           "duration-500": "",
           "ease-in-out": ""
         }, null, 4),
-        (MenuList.value ? (_b = (_a2 = MenuList.value[1]) == null ? void 0 : _a2.menuItems) == null ? void 0 : _b.length : false) ? (openBlock(), createBlock(MyArticle, {
+        (MenuList.value ? (_b = (_a = MenuList.value[1]) == null ? void 0 : _a.menuItems) == null ? void 0 : _b.length : false) ? (openBlock(), createBlock(MyArticle, {
           key: 0,
           "md:my-8": "",
           "md:mx-16": "",
