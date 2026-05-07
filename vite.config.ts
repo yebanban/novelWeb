@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: yebanban
  * @Date: 2022-04-13 09:49:58
- * @LastEditTime: 2026-03-25 16:05:49
+ * @LastEditTime: 2026-05-07 14:38:56
  * @LastEditors: yebanban
  */
 import { defineConfig } from 'vite'
@@ -14,7 +14,7 @@ import Unocss from 'unocss/vite'
 import { presetUno, presetAttributify, presetIcons } from 'unocss'
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/',
+  base: '/novelWeb',
   build: {
     minify: false // 关闭压缩以便调试
   },
